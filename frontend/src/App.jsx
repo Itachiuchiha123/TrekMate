@@ -1,34 +1,22 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
+import { lazy } from "react";
+import { Suspense } from "react";
+import { motion } from "framer-motion";
+import mountain from "./assets/mountain.svg";
+
+const NavBar = lazy(() => import("./components/NavBar"));
+const Hero = lazy(() => import("./components/hero"));
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo inline" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react inline" alt="React logo" />
-        </a>
+    <Suspense fallback={<div>Loading...</div>}>
+      <div className="relative overflow-hidden">
+        <NavBar />
+        <Hero />
+
+        <div className="relative h-screen w-screen bg-gradient-to-b from-[#010101] to-black"></div>
       </div>
-      <h1 className="text-red-300">Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </Suspense>
   );
 }
 
