@@ -5,7 +5,7 @@ export const hostEvent = asyncHandler(async (req, res) => {
     const userId = req.userId;
     const { title, location, isPublic, startsAt, description } = req.body;
 
-    // location, isPublic, startsAt required
+    // title, location, isPublic, startsAt required
     if (
         !title ||
         title.length > 32 ||
@@ -17,7 +17,7 @@ export const hostEvent = asyncHandler(async (req, res) => {
     }
 
     // Check if this title already exists
-    const event = await Event.findOne({ title });
+    const event = await Event.findOne({ title }).lean();
     if (event) {
         return res.status(409).json({ msg: "Event title already exists" });
     }
@@ -72,4 +72,50 @@ export const joinEvent = asyncHandler(async (req, res) => {
     }
 
     return res.status(200).json({ msg: successMessage });
+});
+
+export const handleJoinRequest = asyncHandler(async (req, res) => {
+    const userId = req.userId;
+    const { eventId, requestorId } = req.params;
+    const { decision } = req.body;
+
+    if (typeof decision !== "boolean") {
+        return res.status(400).json({ msg: "All fields required" });
+    }
+
+    // Check if the event exists
+    const event = await Event.findById(eventId);
+    if (!event) {
+        return res.status(404).json({ msg: "Event doesnt exist" });
+    }
+
+    // Check if the current user is eligible for accepting/rejecting task
+    const eligible = event.members.find(
+        (member) =>
+            member.user.toString() == userId &&
+            ["host", "admin"].includes(member.role)
+    );
+    if (!eligible) {
+        return res.status(403).json({ msg: "You can't do this" });
+    }
+
+    // Check if the request even exists
+    const request = event.requests.find(
+        (joinRequest) =>
+            joinRequest.user.toString() == requestorId &&
+            joinRequest.status === "pending"
+    );
+    if (!request) {
+        return res.status(404).json({ msg: "Join request not found" });
+    }
+
+    request.status = decision ? "accepted" : "rejected";
+
+    // Add user to member
+    event.members.push({ user: requestorId });
+    await event.save();
+
+    return res
+        .status(200)
+        .json({ msg: `Succesfully ${request.status} the request` });
 });
