@@ -19,7 +19,7 @@ const eventSchema = new mongoose.Schema(
             default: true,
             required: true,
         },
-        starts_at: { type: Date, required: true },
+        startsAt: { type: Date, required: true },
         description: {
             type: String,
         },
@@ -32,30 +32,33 @@ const eventSchema = new mongoose.Schema(
                     default: "member",
                     required: true,
                 },
-                joined_at: { type: Date, default: Date.now },
+                joinedAt: { type: Date, default: Date.now },
+                _id: false,
             },
         ],
         invites: [
             {
                 user: { type: ObjectId, ref: "User", required: true },
-                invited_at: { type: Date, default: Date.now },
+                invitedAt: { type: Date, default: Date.now },
                 status: {
                     type: String,
                     enum: ["pending", "accepted", "rejected"],
                     default: "pending",
                     required: true,
                 },
+                _id: false,
             },
         ],
         requests: [
             {
                 user: { type: ObjectId, ref: "User", required: true },
-                requested_at: { type: Date, default: Date.now },
+                requestedAt: { type: Date, default: Date.now },
                 status: {
                     type: String,
                     enum: ["pending", "accepted", "rejected"],
                     default: "pending",
                 },
+                _id: false,
             },
         ],
     },
@@ -63,6 +66,11 @@ const eventSchema = new mongoose.Schema(
         timestamps: true,
     }
 );
+
+eventSchema.method("publicDetails", function () {
+    const { requests, invites, ...details } = this.toObject();
+    return details;
+});
 
 const Event = mongoose.model("Event", eventSchema);
 

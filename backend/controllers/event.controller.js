@@ -26,7 +26,7 @@ export const hostEvent = asyncHandler(async (req, res) => {
         title,
         location,
         isPublic,
-        starts_at: startsAt,
+        startsAt: startsAt,
         description,
         members: [{ user: userId, role: "host" }],
     });
@@ -36,8 +36,50 @@ export const hostEvent = asyncHandler(async (req, res) => {
 
     res.status(201).json({
         msg: "Successfully created event",
-        event: newEvent.toJSON(),
+        event: newEvent,
     });
+});
+
+export const viewEvent = asyncHandler(async (req, res) => {
+    const userId = req.userId;
+    const { eventId } = req.params;
+
+    const event = await Event.findById(eventId);
+
+    if (!event) {
+        return res.status(404).json({ msg: "Event doesnt exist" });
+    }
+
+    const privileged = event.members.find(
+        (member) =>
+            member.user.toString() == userId &&
+            ["host", "admin"].includes(member.role)
+    );
+
+    return res.status(200).json(privileged ? event : event.publicDetails());
+});
+
+export const deleteEvent = asyncHandler(async (req, res) => {
+    const userId = req.userId;
+    const { eventId } = req.params;
+
+    const event = await Event.findById(eventId);
+
+    if (!event) {
+        return res.status(404).json({ msg: "Event doesnt exist" });
+    }
+    const privileged = event.members.find(
+        (member) =>
+            member.user.toString() == userId && ["host"].includes(member.role)
+    );
+
+    if (!privileged) {
+        return res.status(403).json({ msg: "You cannot delete this event" });
+    }
+
+    await event.deleteOne();
+
+    return res.status(200).json({ msg: "Succesfully deleted event" });
 });
 
 export const joinEvent = asyncHandler(async (req, res) => {
