@@ -168,6 +168,10 @@ export const inviteToEvent = asyncHandler(async (req, res) => {
     const { eventId } = req.params;
     const { receiver } = req.body; // Reciever
 
+    if (!receiver) {
+        return res.status(400).json({ msg: "Fill all fields" });
+    }
+
     // Check if the event id is valid
     const event = await Event.findById(eventId);
     if (!event) {
@@ -220,6 +224,10 @@ export const handleEventInvitation = asyncHandler(async (req, res) => {
     const { eventId } = req.params;
     const { decision } = req.body;
 
+    if (typeof decision !== "boolean") {
+        return res.status(400).json({ msg: "Fill all fields" });
+    }
+
     const event = await Event.findById(eventId);
     if (!event) {
         return res.status(404).json({ msg: "Not invited to that event :(" });
@@ -244,4 +252,89 @@ export const handleEventInvitation = asyncHandler(async (req, res) => {
     return res
         .status(200)
         .json({ msg: `Succesfully ${invited.status} the invitation` });
+});
+
+export const updateEventMember = asyncHandler(async (req, res) => {
+    const userId = req.userId;
+    const { memberId, eventId } = req.params;
+    const { role } = req.body;
+
+    if (!["admin", "member"].includes(role)) {
+        return res.status(400).json({ msg: "Invalid role" });
+    }
+
+    // Check if the event id is valid
+    const event = await Event.findById(eventId);
+    if (!event) {
+        return res.status(404).json({ msg: "Event doesnt exist" });
+    }
+
+    // Check if the user has valid perms for updating role
+    const privileged = event.members.find(
+        (member) =>
+            member.user.toString() == userId && ["host"].includes(member.role)
+    );
+    if (!privileged) {
+        return res.status(403).json({ msg: "You can't change member roles" });
+    }
+
+    // Check if the member exists
+    const member = event.members.find(
+        (member) => member.user.toString() == memberId
+    );
+    if (!member) {
+        return res.status(404).json({ msg: "User is not a member" });
+    }
+
+    if (member.user.toString() == userId) {
+        return res.status(409).json({ msg: "Cant change your role" });
+    }
+
+    member.role = role;
+    await event.save();
+
+    return res.status(200).json({ msg: "Succesfully updated member" });
+});
+
+export const kickEventMember = asyncHandler(async (req, res) => {
+    const userId = req.userId;
+    const { memberId, eventId } = req.params;
+
+    // Check if the event id is valid
+    const event = await Event.findById(eventId);
+    if (!event) {
+        return res.status(404).json({ msg: "Event doesnt exist" });
+    }
+
+    // Check if the user has valid perms for updating role
+    const self = event.members.find(
+        (member) => member.user.toString() == userId
+    );
+    if (!self || self.role == "member") {
+        return res.status(403).json({ msg: "Can't perform this action" });
+    }
+
+    // Get the target user
+    const target = event.members.find(
+        (member) => member.user.toString() == userId
+    );
+    if (!target) {
+        return res.status(404).json({ msg: "Not a member" });
+    }
+
+    if (target.user.toString() == self.user.toString()) {
+        return res.status(409).json({ msg: "Cant kick yourself" });
+    }
+
+    if (self.role != "host" && ["host", "admin"].includes(target.role)) {
+        return res.status(403).json({ msg: "Not enough perms to do this" });
+    }
+
+    // Finally kick member
+    event.members.filter((member) => member.user.toString() !== target.user);
+
+    // TODO notify the kicked member
+    await event.save();
+
+    return res.status(200).json({ msg: "Kicked the user" });
 });

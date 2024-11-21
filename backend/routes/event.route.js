@@ -7,6 +7,8 @@ import {
     hostEvent,
     inviteToEvent,
     joinEvent,
+    kickEventMember,
+    updateEventMember,
     viewEvent,
 } from "../controllers/event.controller.js";
 import { verifyToken } from "../middleware/verifyToken.js";
@@ -17,8 +19,11 @@ router.post("/", verifyToken, hostEvent);
 router.get("/:eventId", verifyToken, viewEvent);
 router.delete("/:eventId", verifyToken, deleteEvent);
 router.put("/:eventId", verifyToken, (req, res) => {
-    res.send("coming soon");
+    res.send("Edit event coming soon");
 });
+
+router.put("/:eventId/members/:memberId", verifyToken, updateEventMember);
+router.delete("/:eventId/members/:memberId", verifyToken, kickEventMember);
 
 router.post("/:eventId/requests", verifyToken, joinEvent);
 router.patch("/:eventId/requests/:requestorId", verifyToken, handleJoinRequest);
