@@ -1,4 +1,5 @@
 import Event from "../models/event.model.js";
+import User from "../models/user.model.js";
 import asyncHandler from "express-async-handler";
 
 export const hostEvent = asyncHandler(async (req, res) => {
@@ -113,7 +114,7 @@ export const joinEvent = asyncHandler(async (req, res) => {
         successMessage = "Succesfully sent request to join event";
     }
 
-    return res.status(200).json({ msg: successMessage });
+    return res.status(201).json({ msg: successMessage });
 });
 
 export const handleJoinRequest = asyncHandler(async (req, res) => {
@@ -160,4 +161,87 @@ export const handleJoinRequest = asyncHandler(async (req, res) => {
     return res
         .status(200)
         .json({ msg: `Succesfully ${request.status} the request` });
+});
+
+export const inviteToEvent = asyncHandler(async (req, res) => {
+    const userId = req.userId; // Sender
+    const { eventId } = req.params;
+    const { receiver } = req.body; // Reciever
+
+    // Check if the event id is valid
+    const event = await Event.findById(eventId);
+    if (!event) {
+        return res.status(404).json({ msg: "Event doesnt exist" });
+    }
+
+    // Check if the sender has valid perms for inviting
+    const privileged = event.members.find(
+        (member) =>
+            member.user.toString() == userId &&
+            ["host", "admin"].includes(member.role)
+    );
+    if (!privileged) {
+        return res
+            .status(403)
+            .json({ msg: "You can't send invites in this event" });
+    }
+
+    // Check if the new member is a valid user
+    const validUser = await User.findById(receiver);
+    if (!validUser) {
+        return res.status(404).json({ msg: "User can't be invited" });
+    }
+
+    // Check if the member is already a member
+    if (event.members.find((member) => member.user.toString() == receiver)) {
+        return res.status(409).json({ msg: "User is already a member" });
+    }
+
+    // Check if the member has already been invited
+    if (
+        event.invites.find(
+            (invite) =>
+                invite.user.toString() == receiver && invite.status == "pending"
+        )
+    ) {
+        return res.status(409).json({ msg: "An invite is already pending" });
+    }
+
+    event.invites.push({ user: receiver });
+    await event.save();
+
+    // TODO Send socket notif to the newMember
+
+    return res.status(201).json({ msg: "Invitation made" });
+});
+
+export const handleEventInvitation = asyncHandler(async (req, res) => {
+    const userId = req.userId; // receiver
+    const { eventId } = req.params;
+    const { decision } = req.body;
+
+    const event = await Event.findById(eventId);
+    if (!event) {
+        return res.status(404).json({ msg: "Not invited to that event :(" });
+    }
+
+    const invited = event.invites.find(
+        (invite) => invite.user == userId && invite.status == "pending"
+    );
+    if (!invited) {
+        return res.status(404).json({ msg: "Not invited to that event :(" });
+    }
+
+    // Invited
+    if (decision) {
+        invited.status = "accepted";
+        event.members.push({ user: userId });
+    } else {
+        invited.status = "rejected";
+    }
+    await event.save();
+
+    return res
+        .status(200)
+        .json({ msg: `Succesfully ${invited.status} the invitation` });
 });

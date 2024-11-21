@@ -57,6 +57,7 @@ const eventSchema = new mongoose.Schema(
                     type: String,
                     enum: ["pending", "accepted", "rejected"],
                     default: "pending",
+                    required: true,
                 },
                 _id: false,
             },
