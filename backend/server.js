@@ -5,12 +5,20 @@ import authRoutes from "./routes/auth.route.js";
 import eventRoutes from "./routes/event.route.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-
-const app = express();
+import http from "http";
+import socket from "./sockets/socket.js";
 
 dotenv.config();
+const app = express();
+const server = http.createServer(app);
+const io = socket(server);
 
 const allowedOrigins = ["http://127.0.0.1:5173", "http://localhost:5173"];
+
+app.use((req, res, next) => {
+    req.io = io;
+    next();
+});
 
 app.use(
     cors({
@@ -55,7 +63,7 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     connectDB();
     console.log("Server is running on http://localhost:" + PORT);
 });
