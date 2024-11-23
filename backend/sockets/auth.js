@@ -7,6 +7,6 @@ export const verifySocketAuth = (socket, next) => {
         return next(new Error("Authorization error"));
     }
 
-    socket.userId = decoded.userId;
+    socket.userId = decoded.id;
     next();
 };
