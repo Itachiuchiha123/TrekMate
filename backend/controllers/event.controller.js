@@ -152,10 +152,15 @@ export const handleJoinRequest = asyncHandler(async (req, res) => {
         return res.status(404).json({ msg: "Join request not found" });
     }
 
-    request.status = decision ? "accepted" : "rejected";
+    if (decision) {
+        request.status = "accepted";
+        event.members.push;
+        // Add user to member
+        event.members.push({ user: requestorId });
+    } else {
+        request.status = "rejected";
+    }
 
-    // Add user to member
-    event.members.push({ user: requestorId });
     await event.save();
 
     return res
