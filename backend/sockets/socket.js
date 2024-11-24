@@ -33,5 +33,12 @@ export default function socket(httpServer) {
         });
     });
 
+    io.getSocketId = (userId) => {
+        return userMap[userId];
+    };
+    io.userJoinRoom = (userId, room) => {
+        io.in(userMap[userId]).socketsJoin(room);
+    };
+
     return io;
 }

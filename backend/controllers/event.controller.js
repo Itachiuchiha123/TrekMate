@@ -35,6 +35,8 @@ export const hostEvent = asyncHandler(async (req, res) => {
     await newEvent.save();
     await newEvent.populate("members.user", "name email");
 
+    req.io.userJoinRoom(userId, newEvent._id.toString());
+
     res.status(201).json({
         msg: "Successfully created event",
         event: newEvent,
@@ -80,6 +82,12 @@ export const deleteEvent = asyncHandler(async (req, res) => {
 
     await event.deleteOne();
 
+    req.io.to(event._id).emit("event:deleted", {
+        msg: "An event you are in has been deleted by the host :/",
+        data: { event: event._id, host: userId },
+    });
+    req.io.socketsLeave(event._id);
+
     return res.status(200).json({ msg: "Succesfully deleted event" });
 });
 
@@ -107,10 +115,29 @@ export const joinEvent = asyncHandler(async (req, res) => {
     if (event.isPublic) {
         event.members.push({ user: userId });
         await event.save();
+
+        req.io.userJoinRoom(userId, event._id.toString());
+        req.io.to(event._id.toString()).emit("event:join", {
+            msg: "New user joined an event :)",
+            data: {
+                event: event._id,
+                user: userId,
+            },
+        });
+
         successMessage = "Succesfully joined the event";
     } else {
         event.requests.push({ user: userId });
         await event.save();
+
+        req.io.to(event._id.toString()).emit("event:request", {
+            msg: "User requested to join an event",
+            data: {
+                event: event._id,
+                user: userId,
+            },
+        });
+
         successMessage = "Succesfully sent request to join event";
     }
 
@@ -157,11 +184,26 @@ export const handleJoinRequest = asyncHandler(async (req, res) => {
         event.members.push;
         // Add user to member
         event.members.push({ user: requestorId });
+        req.io.userJoinRoom(requestorId, event._id.toString());
+        req.io.to(event._id.toString()).emit("event:join", {
+            msg: "New user joined an event :)",
+            data: {
+                event: event._id,
+                user: userId,
+            },
+        });
     } else {
         request.status = "rejected";
     }
 
     await event.save();
+
+    req.io
+        .to(req.io.getSocketId(requestorId))
+        .emit(`event:request_${request.status}`, {
+            msg: `Request has been ${request.status}`,
+            data: { event: event._id },
+        });
 
     return res
         .status(200)
@@ -219,7 +261,10 @@ export const inviteToEvent = asyncHandler(async (req, res) => {
     event.invites.push({ user: receiver });
     await event.save();
 
-    // TODO Send socket notif to the newMember
+    req.io.to(req.io.getSocketId(receiver)).emit("event:invite", {
+        msg: "You have been invited to join an event",
+        data: { event: event._id },
+    });
 
     return res.status(201).json({ msg: "Invitation made" });
 });
@@ -321,7 +366,7 @@ export const kickEventMember = asyncHandler(async (req, res) => {
 
     // Get the target user
     const target = event.members.find(
-        (member) => member.user.toString() == userId
+        (member) => member.user.toString() == memberId
     );
     if (!target) {
         return res.status(404).json({ msg: "Not a member" });
@@ -338,8 +383,12 @@ export const kickEventMember = asyncHandler(async (req, res) => {
     // Finally kick member
     event.members.filter((member) => member.user.toString() !== target.user);
 
-    // TODO notify the kicked member
     await event.save();
+
+    req.io.to(req.io.getSocketId(memberId)).emit("event:kick", {
+        msg: "You have been kicked from an event :(",
+        data: { event: event._id },
+    });
 
     return res.status(200).json({ msg: "Kicked the user" });
 });
