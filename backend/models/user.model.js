@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+const ObjectId = mongoose.Schema.Types.ObjectId;
+
 const userSchema = new mongoose.Schema(
     {
         name: {
@@ -27,21 +29,6 @@ const userSchema = new mongoose.Schema(
         resetPasswordExpires: Date,
         verificationToken: String,
         verificationTokenExpires: Date,
-        library: {
-            type: [
-                {
-                    id: {
-                        type: String,
-                        required: true,
-                    },
-                    url: {
-                        type: String,
-                        required: true,
-                    },
-                },
-            ],
-            default: [],
-        },
     },
     {
         timestamps: true,

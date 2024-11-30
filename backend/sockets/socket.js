@@ -6,13 +6,17 @@ import Event from "../models/event.model.js";
 export default function socket(httpServer) {
     const io = new Server(httpServer);
 
-    const userMap = {};
+    const userSockets = {};
 
     // Handle socket authorization
     io.use(verifySocketAuth);
 
     io.on("connection", async (socket) => {
-        userMap[socket.userId] = socket.id;
+        if (!userSockets[socket.userId]) {
+            userSockets[socket.userId] = new Set();
+        }
+
+        userSockets[socket.userId].add(socket.id);
 
         // Make user socket join their rooms
         const events = await Event.find({
@@ -23,25 +27,28 @@ export default function socket(httpServer) {
             socket.join(event._id.toString());
         });
 
-        socket.emit("joinedEvents", {
+        socket.emit("user:events", {
             events: events.map((event) => event._id),
         });
 
         registerEventChatHandler(io, socket);
 
         socket.on("disconnect", () => {
-            if (userMap[socket.userId]) {
-                delete userMap[socket.userId];
+            if (userSockets[socket.userId]) {
+                userSockets[socket.userId].delete(socket.id);
+                if (userSockets[socket.userId].size === 0) {
+                    delete userSockets[socket.userId];
+                }
             }
-            console.log("Bye byeeee");
         });
     });
 
-    io.getSocketId = (userId) => {
-        return userMap[userId];
+    io.getUserSockets = (userId) => {
+        return Array.from(userSockets[userId]);
     };
+
     io.userJoinRoom = (userId, room) => {
-        io.in(userMap[userId]).socketsJoin(room);
+        io.in(io.getUserSockets(userId)).socketsJoin(room);
     };
 
     return io;

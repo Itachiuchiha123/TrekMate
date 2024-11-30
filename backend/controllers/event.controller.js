@@ -199,7 +199,7 @@ export const handleJoinRequest = asyncHandler(async (req, res) => {
     await event.save();
 
     req.io
-        .to(req.io.getSocketId(requestorId))
+        .to(req.io.getUserSockets(requestorId))
         .emit(`event:request_${request.status}`, {
             msg: `Request has been ${request.status}`,
             data: { event: event._id },
@@ -261,7 +261,7 @@ export const inviteToEvent = asyncHandler(async (req, res) => {
     event.invites.push({ user: receiver });
     await event.save();
 
-    req.io.to(req.io.getSocketId(receiver)).emit("event:invite", {
+    req.io.to(req.io.getUserSockets(receiver)).emit("event:invite", {
         msg: "You have been invited to join an event",
         data: { event: event._id },
     });
@@ -385,7 +385,7 @@ export const kickEventMember = asyncHandler(async (req, res) => {
 
     await event.save();
 
-    req.io.to(req.io.getSocketId(memberId)).emit("event:kick", {
+    req.io.to(req.io.getUserSockets(memberId)).emit("event:kick", {
         msg: "You have been kicked from an event :(",
         data: { event: event._id },
     });
