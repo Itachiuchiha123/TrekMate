@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
 import { verifySocketAuth } from "./auth.js";
-import { registerHelloHandler } from "./helloHandler.js";
+import { registerEventChatHandler } from "./eventChatHandler.js";
 import Event from "../models/event.model.js";
 
 export default function socket(httpServer) {
@@ -23,7 +23,11 @@ export default function socket(httpServer) {
             socket.join(event._id.toString());
         });
 
-        registerHelloHandler(io, socket);
+        socket.emit("joinedEvents", {
+            events: events.map((event) => event._id),
+        });
+
+        registerEventChatHandler(io, socket);
 
         socket.on("disconnect", () => {
             if (userMap[socket.userId]) {
