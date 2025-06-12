@@ -3,9 +3,14 @@ import menu from "../assets/menu.svg";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { FaInstagram, FaFacebook, FaGithub } from "react-icons/fa";
+import { useAuthStore } from "../store/authStore";
+import { UserCircleIcon } from "lucide-react";
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { isAuthenticated, user } = useAuthStore();
+  console.log(isAuthenticated);
+  console.log(user);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -40,22 +45,36 @@ const NavBar = () => {
           {/* <FaInstagram />
           <FaFacebook />
           <FaGithub /> */}
-          <button
-            className="bg-transparent p-1 rounded-lg"
-            onClick={() => {
-              window.location.href = "/signup";
-            }}
-          >
-            Sign up
-          </button>
-          <button
-            className="bg-transparent p-1 rounded-lg"
-            onClick={() => {
-              window.location.href = "/login";
-            }}
-          >
-            Log in
-          </button>
+          {isAuthenticated && user?.isVerfied ? (
+            <button
+              className="bg-transparent p-1 rounded-lg"
+              onClick={() => {
+                window.location.href = "/dashboard";
+              }}
+            >
+              DashBoard
+              <UserCircleIcon className="inline-block ml-2 h-5 w-5" />
+            </button>
+          ) : (
+            <>
+              <button
+                className="bg-transparent p-1 rounded-lg"
+                onClick={() => {
+                  window.location.href = "/signup";
+                }}
+              >
+                Sign up
+              </button>
+              <button
+                className="bg-transparent p-1 rounded-lg"
+                onClick={() => {
+                  window.location.href = "/login";
+                }}
+              >
+                Log in
+              </button>
+            </>
+          )}
         </div>
       </div>
       {isOpen && (
@@ -71,22 +90,35 @@ const NavBar = () => {
             {/* <FaInstagram />
             <FaFacebook />
             <FaGithub /> */}
-            <button
-              className="bg-transparent p-1 rounded-lg"
-              onClick={() => {
-                window.location.href = "/signup";
-              }}
-            >
-              Sign up
-            </button>
-            <button
-              className="bg-transparent p-1 rounded-lg"
-              onClick={() => {
-                window.location.href = "/login";
-              }}
-            >
-              Log in
-            </button>
+            {isAuthenticated && user?.isVerfied ? (
+              <button
+                className="bg-transparent p-1 rounded-lg"
+                onClick={() => {
+                  window.location.href = "/dashboard";
+                }}
+              >
+                DashBoard
+              </button>
+            ) : (
+              <>
+                <button
+                  className="bg-transparent p-1 rounded-lg"
+                  onClick={() => {
+                    window.location.href = "/signup";
+                  }}
+                >
+                  Sign up
+                </button>
+                <button
+                  className="bg-transparent p-1 rounded-lg"
+                  onClick={() => {
+                    window.location.href = "/login";
+                  }}
+                >
+                  Log in
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
