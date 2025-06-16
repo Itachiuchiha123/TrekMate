@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   IconArrowLeft,
   IconBrandTabler,
+  IconNotification,
   IconSettings,
   IconUserBolt,
 } from "@tabler/icons-react";
@@ -12,7 +13,7 @@ import { motion } from "framer-motion";
 import { useAuthStore } from "../store/authStore.js";
 import { cn } from "../libs/utils.ts";
 import logo from "../assets/logo.svg";
-import { User } from "lucide-react";
+import { BellIcon, MessageCircle, User } from "lucide-react";
 import {
   Sidebar,
   SidebarBody,
@@ -20,29 +21,9 @@ import {
 } from "../components/ui/SideBar.jsx";
 
 import DashboardContent from "./DashBoardContent.jsx";
-import RightSidebar from "../components/ui/RightSidebar.jsx";
+import Profile from "./ProfilePage.jsx";
 
 // Profile component
-const Profile = ({ user }) => (
-  <div className="flex flex-1 h-full">
-    <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-4 flex-1 w-full h-full">
-      <h2 className="text-2xl font-bold mb-4 text-black dark:text-white">
-        Profile
-      </h2>
-      <div className="flex flex-col gap-2">
-        <div>
-          <span className="font-semibold">Name: </span>
-          <span>{user?.name || "N/A"}</span>
-        </div>
-        <div>
-          <span className="font-semibold">Email: </span>
-          <span>{user?.email || "N/A"}</span>
-        </div>
-        {/* Add more user info as needed */}
-      </div>
-    </div>
-  </div>
-);
 
 // Right Sidebar Component
 
@@ -62,6 +43,22 @@ export default function DashBoard() {
         <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
       onClick: () => setActivePage("dashboard"),
+    },
+    {
+      label: "Notifications",
+      href: "#profile",
+      icon: (
+        <BellIcon className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+      ),
+      onClick: () => setActivePage("profile"),
+    },
+    {
+      label: "Messages",
+      href: "#profile",
+      icon: (
+        <MessageCircle className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+      ),
+      onClick: () => setActivePage("profile"),
     },
     {
       label: "Profile",

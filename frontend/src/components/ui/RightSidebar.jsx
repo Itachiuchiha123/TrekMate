@@ -40,19 +40,6 @@ const RightSidebar = () => (
         </button>
       </div>
     </div>
-    {/* Subscribe to Premium */}
-    <div className="bg-neutral-100 dark:bg-neutral-800 rounded-xl p-4 mb-6">
-      <h3 className="font-bold text-lg text-black dark:text-white mb-1">
-        Subscribe to Premium
-      </h3>
-      <p className="text-sm text-neutral-700 dark:text-neutral-300 mb-3">
-        Subscribe to unlock new features and if eligible, receive a share of
-        revenue.
-      </p>
-      <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-full text-sm transition">
-        Subscribe
-      </button>
-    </div>
 
     <div className="bg-neutral-100 dark:bg-neutral-800 rounded-xl p-4 mb-6">
       <h3 className="font-bold text-lg text-black dark:text-white mb-3">
