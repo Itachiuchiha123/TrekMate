@@ -10,7 +10,6 @@ import {
 } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useAuthStore } from "../store/authStore.js";
 import { cn } from "../libs/utils.ts";
 import logo from "../assets/logo.svg";
 import { BellIcon, MessageCircle, User } from "lucide-react";
@@ -22,13 +21,14 @@ import {
 
 import DashboardContent from "./DashBoardContent.jsx";
 import Profile from "./ProfilePage.jsx";
+import { useSelector } from "react-redux";
 
 // Profile component
 
 // Right Sidebar Component
 
 export default function DashBoard() {
-  const { user } = useAuthStore();
+  const { user } = useSelector((state) => state.auth);
 
   // Track which page is active
   const [activePage, setActivePage] = useState("dashboard");

@@ -19,9 +19,13 @@ import EmailVerificationPage from "./components/EmailVerificationPage.jsx";
 import { Toaster } from "react-hot-toast";
 import ResetPasswordPage from "./components/ResetPasswordPage.jsx";
 import ForgotPasswordPage from "./components/ForgotPasswordPage.jsx";
+import { useDispatch, useSelector } from "react-redux";
 
 const ProtectedRoute = () => {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isLoading, error, isAuthenticated, user } = useSelector(
+    (state) => state.auth
+  );
+
   console.log(isAuthenticated);
   console.log(user);
 

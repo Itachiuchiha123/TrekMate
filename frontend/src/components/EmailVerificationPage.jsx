@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useAuthStore } from "../store/authStore";
 import toast from "react-hot-toast";
+import { verifyEmail } from "../features/auth/authSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const EmailVerificationPage = () => {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef([]);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const { error, isLoading, verifyEmail } = useAuthStore();
+  const { error, isLoading } = useSelector((state) => state.auth);
 
   const handleChange = (index, value) => {
     const newCode = [...code];
@@ -47,7 +49,7 @@ const EmailVerificationPage = () => {
     e.preventDefault();
     const verificationCode = code.join("");
     try {
-      await verifyEmail(verificationCode);
+      await dispatch(verifyEmail(verificationCode)).unwrap();
       navigate("/dashboard");
       toast.success("Email verified successfully");
     } catch (error) {

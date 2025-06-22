@@ -3,9 +3,10 @@ import { Loader, Lock, Mail, User } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
-import { useAuthStore } from "../store/authStore";
 import Input from "../components/Input";
 import NavBar from "../components/NavBar";
+import { useDispatch, useSelector } from "react-redux";
+import { signup } from "../features/auth/authSlice";
 
 const SignupPage = () => {
   const [name, setName] = useState("");
@@ -13,13 +14,15 @@ const SignupPage = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const { signup, error, isLoading } = useAuthStore();
+  const dispatch = useDispatch();
+
+  const { error, isLoading } = useSelector((state) => state.auth);
 
   const handleSignUp = async (e) => {
     e.preventDefault();
 
     try {
-      await signup(email, password, name);
+      await dispatch(signup({ email, password, name })).unwrap();
       navigate("/verify-email");
     } catch (error) {
       console.log(error);

@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useAuthStore } from "../store/authStore";
 import { useNavigate, useParams } from "react-router-dom";
 import Input from "../components/Input";
 import { Lock } from "lucide-react";
 import toast from "react-hot-toast";
+import { resetPassword } from "../features/auth/authSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const { resetPassword, error, isLoading, message } = useAuthStore();
+  const { error, isLoading, message } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
   const { token } = useParams();
   const navigate = useNavigate();
@@ -22,7 +24,7 @@ const ResetPasswordPage = () => {
       return;
     }
     try {
-      await resetPassword(token, password);
+      await dispatch(resetPassword({ token, password })).unwrap();
 
       toast.success(
         "Password reset successfully, redirecting to login page..."

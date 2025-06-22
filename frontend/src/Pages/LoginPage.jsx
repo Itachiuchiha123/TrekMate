@@ -3,22 +3,24 @@ import { motion } from "framer-motion";
 import { Mail, Lock, Loader } from "lucide-react";
 import { Link } from "react-router-dom";
 import Input from "../components/Input";
-import { useAuthStore } from "../store/authStore";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../features/auth/authSlice";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { login, isLoading, error } = useAuthStore();
+  const dispatch = useDispatch();
+  const { isLoading, error } = useSelector((state) => state.auth);
 
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    await login(email, password);
+    await dispatch(login({ email, password })).unwrap();
     toast.success("Logged in successfully");
     navigate("/dashboard");
   };
