@@ -4,11 +4,12 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { FaInstagram, FaFacebook, FaGithub } from "react-icons/fa";
 import { useAuthStore } from "../store/authStore";
+import { useSelector } from "react-redux";
 import { UserCircleIcon } from "lucide-react";
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
   console.log(isAuthenticated);
   console.log(user);
 

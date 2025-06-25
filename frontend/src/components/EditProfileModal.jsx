@@ -1,37 +1,87 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { updateProfile, updateAvatar } from "../features/auth/authSlice";
+import toast from "react-hot-toast";
+import { uploadMedia } from "../features/upload/uploadSlice";
 
 const EditProfileModal = ({ isOpen, onClose, user, onSave }) => {
   const [name, setName] = useState(user?.name || "");
   const [bio, setBio] = useState(user?.bio || "");
   const [website, setWebsite] = useState(user?.website || "");
-  const [avatar, setAvatar] = useState(user?.avatar || "");
-  const [preview, setPreview] = useState(user?.avatar || "");
+  const [location, setLocation] = useState(user?.location || "");
+  const [avatar, setAvatar] = useState(user?.avatar.url || "");
+  const [preview, setPreview] = useState(user?.avatar.url || "");
+  const [fakeProgress, setFakeProgress] = useState(0);
+
+  const dispatch = useDispatch();
+
+  const { uploading, uploadProgress } = useSelector((state) => state.upload);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setAvatar(file);
+      console.log("Selected file:", file);
       setPreview(URL.createObjectURL(file));
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSave({
-      name,
-      bio,
-      website,
-      avatar,
-    });
-    onClose();
+
+    try {
+      // Step 1: Upload avatar if it's a new File
+      if (avatar instanceof File) {
+        const uploadRes = await dispatch(uploadMedia(avatar)).unwrap(); // returns { url, public_id }
+        await dispatch(updateAvatar(uploadRes)).unwrap(); // updates avatar separately
+      }
+
+      // Step 2: Update profile details (excluding avatar)
+      await dispatch(
+        updateProfile({
+          name,
+          bio,
+          website,
+          location,
+        })
+      ).unwrap();
+
+      toast.success("Profile updated successfully!");
+      onSave?.(); // optional callback
+      onClose();
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || "Failed to update profile.");
+    }
   };
+
+  useEffect(() => {
+    let interval;
+
+    if (uploading) {
+      interval = setInterval(() => {
+        setFakeProgress((prev) => {
+          // Slowly go up to 90%
+          if (prev < 90) {
+            return prev + Math.random() * 5; // randomly increment
+          }
+          return prev;
+        });
+      }, 200); // update every 200ms
+    } else if (!uploading && uploadProgress === 100) {
+      setFakeProgress(100);
+      setTimeout(() => setFakeProgress(0), 500); // reset after success
+    }
+
+    return () => clearInterval(interval); // cleanup
+  }, [uploading, uploadProgress]);
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 overflow-y-auto">
       <div
-        className="w-full max-w-2xl bg-black rounded-2xl shadow-2xl p-0 relative mx-2 sm:mx-4 md:mx-8"
+        className="w-full max-w-2xl bg-black rounded-2xl shadow-2xl p-0 relative mx-2 sm:mx-4 md:mx-8 max-h-screen overflow-y-auto"
         style={{ border: "1px solid #262626" }}
       >
         {/* Header */}
@@ -71,6 +121,21 @@ const EditProfileModal = ({ isOpen, onClose, user, onSave }) => {
           </label>
         </div>
 
+        {/* Upload progress bar */}
+        {uploading && (
+          <div className="px-6 pb-4">
+            <div className="w-full bg-neutral-700 rounded-full h-2.5 overflow-hidden">
+              <div
+                className="bg-blue-500 h-2.5 transition-all duration-300"
+                style={{ width: `${fakeProgress.toFixed(1)}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-white mt-2 text-center">
+              Uploading avatar... {Math.round(fakeProgress)}%
+            </p>
+          </div>
+        )}
+
         {/* Form */}
         <form className="px-2 sm:px-8 pb-6 sm:pb-10" onSubmit={handleSubmit}>
           {/* Website */}
@@ -93,6 +158,23 @@ const EditProfileModal = ({ isOpen, onClose, user, onSave }) => {
               Instagram app and edit your profile to change the websites in your
               bio.
             </p>
+          </div>
+
+          {/* Location */}
+          <div className="mb-6 sm:mb-8">
+            <label
+              className="block text-white font-bold mb-2"
+              htmlFor="location"
+            >
+              Location
+            </label>
+            <input
+              id="location"
+              className="w-full p-3 rounded bg-neutral-800 text-white border-none focus:outline-none text-base"
+              placeholder="Location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+            />
           </div>
 
           {/* Bio */}

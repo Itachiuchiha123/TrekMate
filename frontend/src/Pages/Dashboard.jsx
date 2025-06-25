@@ -4,7 +4,6 @@ import { useState } from "react";
 import {
   IconArrowLeft,
   IconBrandTabler,
-  IconNotification,
   IconSettings,
   IconUserBolt,
 } from "@tabler/icons-react";
@@ -21,20 +20,16 @@ import {
 
 import DashboardContent from "./DashBoardContent.jsx";
 import Profile from "./ProfilePage.jsx";
-import { useSelector } from "react-redux";
-
-// Profile component
-
-// Right Sidebar Component
+import { useSelector, useDispatch } from "react-redux";
+import { setActivePage } from "../features/dashboard/dashboardSlice"; // <-- import the action
 
 export default function DashBoard() {
   const { user } = useSelector((state) => state.auth);
+  const { activePage } = useSelector((state) => state.dashboard);
+  const dispatch = useDispatch();
 
-  // Track which page is active
-  const [activePage, setActivePage] = useState("dashboard");
   const [open, setOpen] = useState(false);
 
-  // Sidebar links with onClick handlers
   const links = [
     {
       label: "Dashboard",
@@ -42,31 +37,31 @@ export default function DashBoard() {
       icon: (
         <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
-      onClick: () => setActivePage("dashboard"),
+      onClick: () => dispatch(setActivePage("dashboard")),
     },
     {
       label: "Notifications",
-      href: "#profile",
+      href: "#",
       icon: (
         <BellIcon className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
-      onClick: () => setActivePage("profile"),
+      onClick: () => dispatch(setActivePage("profile")),
     },
     {
       label: "Messages",
-      href: "#profile",
+      href: "#",
       icon: (
         <MessageCircle className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
-      onClick: () => setActivePage("profile"),
+      onClick: () => dispatch(setActivePage("profile")),
     },
     {
       label: "Profile",
-      href: "#profile",
+      href: "#",
       icon: (
         <IconUserBolt className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
-      onClick: () => setActivePage("profile"),
+      onClick: () => dispatch(setActivePage("profile")),
     },
     {
       label: "Settings",
@@ -74,7 +69,7 @@ export default function DashBoard() {
       icon: (
         <IconSettings className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
-      onClick: () => {}, // Add logic if needed
+      onClick: () => dispatch(setActivePage("settings")),
     },
     {
       label: "Logout",
@@ -82,7 +77,9 @@ export default function DashBoard() {
       icon: (
         <IconArrowLeft className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
-      onClick: () => {}, // Add logic if needed
+      onClick: () => {
+        // handle logout
+      },
     },
   ];
 
@@ -97,9 +94,7 @@ export default function DashBoard() {
       <Sidebar open={open} setOpen={setOpen} animate={false}>
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-            <>
-              <Logo />
-            </>
+            <Logo />
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
                 <SidebarLink key={idx} link={link} onClick={link.onClick} />
@@ -117,13 +112,12 @@ export default function DashBoard() {
           </div>
         </SidebarBody>
       </Sidebar>
+
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-full overflow-y-auto">
-        {activePage === "dashboard" ? (
-          <DashboardContent />
-        ) : (
-          <Profile user={user} />
-        )}
+        {activePage === "dashboard" && <DashboardContent />}
+        {activePage === "profile" && <Profile user={user} />}
+        {/* Add more cases as needed */}
       </div>
     </div>
   );
@@ -136,7 +130,7 @@ export const Logo = () => {
       className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
     >
       <div
-        className="h-5 w-9  flex-shrink-0"
+        className="h-5 w-9 flex-shrink-0"
         style={{ backgroundImage: `url(${logo})`, backgroundSize: "cover" }}
       />
       <motion.span
@@ -149,6 +143,7 @@ export const Logo = () => {
     </Link>
   );
 };
+
 export const LogoIcon = () => {
   return (
     <Link

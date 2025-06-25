@@ -24,7 +24,7 @@ const ProfilePage = ({ user }) => {
           {/* Avatar */}
           <div className="absolute -bottom-16 left-8 flex items-center">
             <img
-              src={user?.avatar || "/trekker-avatar.png"}
+              src={user?.avatar.url || "/trekker-avatar.png"}
               alt="Profile"
               className="w-32 h-32 rounded-full border-4 border-white dark:border-neutral-900 shadow-lg object-cover bg-green-200"
             />
@@ -73,9 +73,12 @@ const ProfilePage = ({ user }) => {
 
           {/* Details */}
           <div className="flex flex-wrap items-center gap-4 text-sm text-neutral-500 dark:text-neutral-400 mb-6">
-            <span>📍 San Francisco, CA</span>
+            <span>📍 {user?.location || "Unknown Location"}</span>
             <span>•</span>
-            <span>Joined March 2021</span>
+            <span>
+              Joined{" "}
+              {new Date(user?.createdAt).toLocaleDateString() || "Unknown Date"}
+            </span>
             <span>•</span>
             <a
               href={user?.website || "https://trekkingadventures.com"}

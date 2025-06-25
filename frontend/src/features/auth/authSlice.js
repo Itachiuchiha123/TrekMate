@@ -7,6 +7,10 @@ const API_URL = process.env.NODE_ENV === "production"
     ? process.env.REACT_APP_BACKEND_URL
     : "http://localhost:5000/api/auth";
 
+const USER_API = process.env.NODE_ENV === "production"
+    ? `${process.env.REACT_APP_BACKEND_URL}`
+    : "http://localhost:5000";
+
 // Async thunks
 export const signup = createAsyncThunk("auth/signup", async ({ email, password, name }, thunkAPI) => {
     try {
@@ -16,6 +20,35 @@ export const signup = createAsyncThunk("auth/signup", async ({ email, password, 
         return thunkAPI.rejectWithValue(err.response?.data?.msg || "Error signing up");
     }
 });
+
+export const updateProfile = createAsyncThunk(
+    "auth/updateProfile",
+    async (profileData, thunkAPI) => {
+        try {
+            const res = await axios.put(`${USER_API}/api/user/update`, profileData);
+            return res.data.user;
+        } catch (err) {
+            return thunkAPI.rejectWithValue(
+                err.response?.data?.msg || "Failed to update profile"
+            );
+        }
+    }
+);
+
+// 🖼️ Update Avatar
+export const updateAvatar = createAsyncThunk(
+    "auth/updateAvatar",
+    async ({ url, public_id }, thunkAPI) => {
+        try {
+            const res = await axios.put(`${USER_API}/api/user/update-avatar`, { url, public_id });
+            return res.data.avatar;
+        } catch (err) {
+            return thunkAPI.rejectWithValue(
+                err.response?.data?.msg || "Failed to update avatar"
+            );
+        }
+    }
+);
 
 export const login = createAsyncThunk("auth/login", async ({ email, password }, thunkAPI) => {
     try {
@@ -76,7 +109,7 @@ const initialState = {
     user: null,
     isAuthenticated: false,
     error: null,
-    isLoading: false,
+    isLoading: true,
     isCheckingAuth: true,
     message: null,
 };
@@ -142,15 +175,18 @@ const authSlice = createSlice({
         // Check Auth
         builder.addCase(checkAuth.pending, (state) => {
             state.isCheckingAuth = true;
+            state.isLoading = true;
         });
         builder.addCase(checkAuth.fulfilled, (state, action) => {
             state.user = action.payload;
             state.isAuthenticated = true;
             state.isCheckingAuth = false;
+            state.isLoading = false;
         });
         builder.addCase(checkAuth.rejected, (state) => {
             state.isAuthenticated = false;
             state.isCheckingAuth = false;
+            state.isLoading = false;
         });
 
         // Forgot Password
@@ -178,7 +214,36 @@ const authSlice = createSlice({
             state.error = action.payload;
             state.isLoading = false;
         });
+
+        // 🔁 Update Profile
+        builder.addCase(updateProfile.pending, (state) => {
+
+        });
+        builder.addCase(updateProfile.fulfilled, (state, action) => {
+            state.user = action.payload;
+
+        });
+        builder.addCase(updateProfile.rejected, (state, action) => {
+            state.error = action.payload;
+
+        });
+
+        // 🖼️ Update Avatar
+        builder.addCase(updateAvatar.pending, (state) => {
+
+        });
+        builder.addCase(updateAvatar.fulfilled, (state, action) => {
+            if (state.user) {
+                state.user.avatar = action.payload;
+            }
+
+        });
+        builder.addCase(updateAvatar.rejected, (state, action) => {
+            state.error = action.payload;
+
+        });
     }
+
 });
 
 export default authSlice.reducer;

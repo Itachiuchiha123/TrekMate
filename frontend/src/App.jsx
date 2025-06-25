@@ -8,7 +8,6 @@ import {
   Route,
   Routes,
 } from "react-router-dom";
-import { useAuthStore } from "./store/authStore.js";
 const LandingPage = lazy(() => import("./Pages/LandingPage.jsx"));
 
 import LoginPage from "./Pages/LoginPage.jsx";
@@ -20,34 +19,36 @@ import { Toaster } from "react-hot-toast";
 import ResetPasswordPage from "./components/ResetPasswordPage.jsx";
 import ForgotPasswordPage from "./components/ForgotPasswordPage.jsx";
 import { useDispatch, useSelector } from "react-redux";
-
-const ProtectedRoute = () => {
-  const { isLoading, error, isAuthenticated, user } = useSelector(
-    (state) => state.auth
-  );
-
-  console.log(isAuthenticated);
-  console.log(user);
-
-  if (!isAuthenticated || isAuthenticated === null) {
-    return <Navigate to="/landingpage" replace />;
-  }
-
-  if (!user?.isVerfied) {
-    return <Navigate to="/verify-email" replace />;
-  }
-
-  return <Outlet />;
-};
+import { checkAuth } from "./features/auth/authSlice.js";
 
 function App() {
-  const { isCheckingAuth, checkAuth } = useAuthStore();
+  const {
+    isLoading: isCheckingAuth,
+    isAuthenticated,
+    user,
+  } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+    dispatch(checkAuth());
+  }, [dispatch]);
 
   if (isCheckingAuth) return <Loader />;
+
+  console.log("App isAuthenticated:", isAuthenticated);
+
+  const ProtectedRoute = () => {
+    console.log("ProtectedRoute isAuthenticated:", isAuthenticated);
+    if (!isAuthenticated || isAuthenticated === null) {
+      return <Navigate to="/landingpage" replace />;
+    }
+
+    if (!user?.isVerfied) {
+      return <Navigate to="/verify-email" replace />;
+    }
+
+    return <Outlet />;
+  };
 
   return (
     <BrowserRouter>
