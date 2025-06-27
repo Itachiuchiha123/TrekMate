@@ -16,7 +16,7 @@ const SignupPage = () => {
 
   const dispatch = useDispatch();
 
-  const { error, isLoading } = useSelector((state) => state.auth);
+  const { error, busy } = useSelector((state) => state.auth);
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -76,9 +76,9 @@ const SignupPage = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
-                disabled={isLoading}
+                disabled={busy}
               >
-                {isLoading ? (
+                {busy ? (
                   <Loader className=" animate-spin mx-auto" size={24} />
                 ) : (
                   "Sign Up"

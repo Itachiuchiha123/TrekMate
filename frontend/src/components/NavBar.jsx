@@ -50,7 +50,7 @@ const NavBar = () => {
             <button
               className="bg-transparent p-1 rounded-lg"
               onClick={() => {
-                window.location.href = "/dashboard";
+                window.location.href = "/";
               }}
             >
               DashBoard

@@ -127,7 +127,7 @@ export const SidebarLink = ({ link, className, ...props }) => {
   // const { logout } = useAuthStore();
   return (
     <Link
-      href={link.href}
+      to={link.href}
       className={cn(
         "flex items-center justify-start gap-2  group/sidebar py-2",
         className

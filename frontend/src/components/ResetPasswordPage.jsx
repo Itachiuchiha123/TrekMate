@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const { error, isLoading, message } = useSelector((state) => state.auth);
+  const { error, busy, message } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   const { token } = useParams();
@@ -77,9 +77,9 @@ const ResetPasswordPage = () => {
               whileTap={{ scale: 0.98 }}
               className="w-full py-3 px-4 bg-gradient-to-r bg-black text-white font-bold rounded-lg shadow-lg  focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200"
               type="submit"
-              disabled={isLoading}
+              disabled={busy}
             >
-              {isLoading ? "Resetting..." : "Set New Password"}
+              {busy ? "Resetting..." : "Set New Password"}
             </motion.button>
           </form>
         </div>

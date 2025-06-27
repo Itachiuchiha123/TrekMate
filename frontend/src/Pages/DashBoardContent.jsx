@@ -9,6 +9,7 @@ import {
 import { useState, useRef, useEffect } from "react";
 import RightSidebar from "../components/ui/RightSidebar";
 import { Heart, MessageCircle, Share2 } from "lucide-react";
+import { useSelector } from "react-redux";
 
 const DashboardContent = () => {
   const [post, setPost] = useState("");
@@ -16,6 +17,7 @@ const DashboardContent = () => {
   const [loading, setLoading] = useState(false);
   const [showInput, setShowInput] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
+  const { user } = useSelector((state) => state.auth);
 
   const fileInputRef = useRef(null); // ✅ Ref for file input
 
@@ -58,8 +60,12 @@ const DashboardContent = () => {
             className="flex flex-col gap-2 border-b border-neutral-200 dark:border-neutral-700 pb-4 mb-4 bg-inherit relative"
           >
             <div className="flex items-start gap-3">
-              <div className="h-10 w-10 rounded-full bg-gray-300 dark:bg-neutral-700 flex items-center justify-center overflow-hidden">
-                <Smile className="text-neutral-500" size={28} />
+              <div className="h-11 w-11 rounded-full bg-gray-300 dark:bg-neutral-700 flex items-center justify-center overflow-hidden">
+                <img
+                  src={user?.avatar?.url || "/trekker-avatar.png"}
+                  alt="Avatar"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <textarea
                 className="flex-1 rounded-lg bg-transparent p-2 text-black dark:text-white resize-none outline-none text-lg placeholder:text-neutral-500 min-h-[48px]"

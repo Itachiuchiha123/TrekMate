@@ -1,12 +1,50 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import EditProfileModal from "../components/EditProfileModal";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchPublicProfile } from "../features/public/profileSlice";
+import { useParams } from "react-router-dom";
 
-const ProfilePage = ({ user }) => {
+const ProfilePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [profileData, setProfileData] = useState(user);
+  const { username } = useParams();
+
+  const dispatch = useDispatch();
+
+  const { user: currentuser } = useSelector((state) => state.auth);
+  const { profile: fetchedProfile } = useSelector((state) => state.profile);
+
+  const isOwner = currentuser?.username === username;
+
+  useEffect(() => {
+    if (!isOwner && username) {
+      dispatch(fetchPublicProfile(username));
+    }
+  }, [username, isOwner, dispatch]);
+
+  const [profileData, setProfileData] = useState(null);
+
+  useEffect(() => {
+    if (isOwner) {
+      setProfileData(currentuser);
+    } else {
+      setProfileData(fetchedProfile?.profile);
+    }
+  }, [isOwner, currentuser, fetchedProfile]);
+
+  const user = profileData || {
+    name: "Sarah Johnson",
+    username: "sarahjohnson",
+    bio: "Adventure seeker 🏔️ | Trekking enthusiast | Exploring the world one trail at a time ✨",
+    location: "Unknown Location",
+    website: "https://trekkingadventures.com",
+    avatar: { url: "/trekker-avatar.png" },
+    createdAt: new Date().toISOString(),
+    events: 127,
+    followers: Array(2400).fill("follower"),
+    following: Array(892).fill("following"),
+  };
 
   const handleSave = (updatedData) => {
-    // Here you can send updatedData to your backend API
     console.log(updatedData);
     setProfileData({ ...profileData, ...updatedData });
   };
@@ -17,14 +55,19 @@ const ProfilePage = ({ user }) => {
         {/* Cover */}
         <div className="relative w-full">
           <div className="h-48 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400" />
-          <button className="absolute top-4 right-8 px-3 py-1 bg-white/80 dark:bg-neutral-800/80 rounded-lg shadow text-sm font-semibold hover:bg-white dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 transition">
-            ✏️ Edit Cover
-          </button>
+          {isOwner && (
+            <button
+              className="absolute top-4 right-8 px-3 py-1 bg-white/80 dark:bg-neutral-800/80 rounded-lg shadow text-sm font-semibold hover:bg-white dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 transition"
+              disabled={!isOwner}
+            >
+              ✏️ Edit Cover
+            </button>
+          )}
 
           {/* Avatar */}
           <div className="absolute -bottom-16 left-8 flex items-center">
             <img
-              src={user?.avatar.url || "/trekker-avatar.png"}
+              src={user?.avatar?.url || "/trekker-avatar.png"}
               alt="Profile"
               className="w-32 h-32 rounded-full border-4 border-white dark:border-neutral-900 shadow-lg object-cover bg-green-200"
             />
@@ -44,14 +87,16 @@ const ProfilePage = ({ user }) => {
               </p>
             </div>
             <div className="flex gap-2">
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow"
-              >
-                Edit Profile
-              </button>
+              {isOwner && (
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow"
+                  disabled={!isOwner}
+                >
+                  Edit Profile
+                </button>
+              )}
               {/* Modal */}
-
               <button className="bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 px-3 py-2 rounded-lg font-semibold text-neutral-700 dark:text-neutral-200">
                 🔗
               </button>
@@ -100,13 +145,13 @@ const ProfilePage = ({ user }) => {
             </div>
             <div>
               <p className="font-bold text-xl text-neutral-800 dark:text-neutral-100">
-                {user?.followers || "2.4K"}
+                {(user?.followers && user.followers.length) || "2.4K"}
               </p>
               <p className="text-sm text-neutral-500">Followers</p>
             </div>
             <div>
               <p className="font-bold text-xl text-neutral-800 dark:text-neutral-100">
-                {user?.following || 892}
+                {(user?.following && user.following.length) || 892}
               </p>
               <p className="text-sm text-neutral-500">Following</p>
             </div>

@@ -11,7 +11,7 @@ const EmailVerificationPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { error, isLoading } = useSelector((state) => state.auth);
+  const { error, busy } = useSelector((state) => state.auth);
 
   const handleChange = (index, value) => {
     const newCode = [...code];
@@ -102,10 +102,10 @@ const EmailVerificationPage = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               type="submit"
-              disabled={isLoading || code.some((digit) => !digit)}
+              disabled={busy || code.some((digit) => !digit)}
               className="w-full py-3 px-4 bg-gradient-to-r bg-black text-white font-bold rounded-lg shadow-lg  focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200"
             >
-              {isLoading ? "Verifying..." : "Verify Email"}
+              {busy ? "Verifying..." : "Verify Email"}
             </motion.button>
           </form>
         </motion.div>

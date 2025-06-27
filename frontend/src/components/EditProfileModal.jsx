@@ -5,12 +5,24 @@ import toast from "react-hot-toast";
 import { uploadMedia } from "../features/upload/uploadSlice";
 
 const EditProfileModal = ({ isOpen, onClose, user, onSave }) => {
-  const [name, setName] = useState(user?.name || "");
-  const [bio, setBio] = useState(user?.bio || "");
-  const [website, setWebsite] = useState(user?.website || "");
-  const [location, setLocation] = useState(user?.location || "");
-  const [avatar, setAvatar] = useState(user?.avatar.url || "");
-  const [preview, setPreview] = useState(user?.avatar.url || "");
+  const [name, setName] = useState("");
+  const [bio, setBio] = useState("");
+  const [website, setWebsite] = useState("");
+  const [location, setLocation] = useState("");
+  const [avatar, setAvatar] = useState("");
+  const [preview, setPreview] = useState("");
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name || "");
+      setBio(user.bio || "");
+      setWebsite(user.website || "");
+      setLocation(user.location || "");
+      setAvatar(user.avatar?.url || "");
+      setPreview(user.avatar?.url || "");
+    }
+  }, [user]);
+
   const [fakeProgress, setFakeProgress] = useState(0);
 
   const dispatch = useDispatch();

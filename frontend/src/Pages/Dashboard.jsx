@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-
 import {
   IconArrowLeft,
   IconBrandTabler,
@@ -18,22 +17,19 @@ import {
   SidebarLink,
 } from "../components/ui/SideBar.jsx";
 
-import DashboardContent from "./DashBoardContent.jsx";
-import Profile from "./ProfilePage.jsx";
 import { useSelector, useDispatch } from "react-redux";
-import { setActivePage } from "../features/dashboard/dashboardSlice"; // <-- import the action
+import { setActivePage } from "../features/dashboard/dashboardSlice";
+import { Outlet } from "react-router-dom"; // ✅ add this
 
 export default function DashBoard() {
   const { user } = useSelector((state) => state.auth);
-  const { activePage } = useSelector((state) => state.dashboard);
   const dispatch = useDispatch();
-
   const [open, setOpen] = useState(false);
 
   const links = [
     {
       label: "Dashboard",
-      href: "#",
+      href: "/",
       icon: (
         <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
@@ -41,23 +37,23 @@ export default function DashBoard() {
     },
     {
       label: "Notifications",
-      href: "#",
+      href: "/dashboard/notifications",
       icon: (
         <BellIcon className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
-      onClick: () => dispatch(setActivePage("profile")),
+      onClick: () => dispatch(setActivePage("notifications")),
     },
     {
       label: "Messages",
-      href: "#",
+      href: "/dashboard/messages",
       icon: (
         <MessageCircle className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
-      onClick: () => dispatch(setActivePage("profile")),
+      onClick: () => dispatch(setActivePage("messages")),
     },
     {
       label: "Profile",
-      href: "#",
+      href: `/profile/${user?.username}`,
       icon: (
         <IconUserBolt className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
@@ -65,7 +61,7 @@ export default function DashBoard() {
     },
     {
       label: "Settings",
-      href: "#",
+      href: "/dashboard/settings",
       icon: (
         <IconSettings className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
@@ -113,11 +109,9 @@ export default function DashBoard() {
         </SidebarBody>
       </Sidebar>
 
-      {/* Main Content */}
+      {/* Main Content - use Outlet here */}
       <div className="flex-1 flex flex-col h-full overflow-y-auto">
-        {activePage === "dashboard" && <DashboardContent />}
-        {activePage === "profile" && <Profile user={user} />}
-        {/* Add more cases as needed */}
+        <Outlet /> {/* ✅ This renders child route components */}
       </div>
     </div>
   );
@@ -126,7 +120,7 @@ export default function DashBoard() {
 export const Logo = () => {
   return (
     <Link
-      href="#"
+      to="#"
       className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
     >
       <div
@@ -147,7 +141,7 @@ export const Logo = () => {
 export const LogoIcon = () => {
   return (
     <Link
-      href="#"
+      to="#"
       className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
     >
       <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />

@@ -14,7 +14,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
 
   const dispatch = useDispatch();
-  const { isLoading, error } = useSelector((state) => state.auth);
+  const { busy, error } = useSelector((state) => state.auth);
 
   const navigate = useNavigate();
 
@@ -22,7 +22,7 @@ const LoginPage = () => {
     e.preventDefault();
     await dispatch(login({ email, password })).unwrap();
     toast.success("Logged in successfully");
-    navigate("/dashboard");
+    navigate("/");
   };
 
   return (
@@ -74,9 +74,9 @@ const LoginPage = () => {
                 whileTap={{ scale: 0.98 }}
                 className="w-full py-3 px-4 bg-gradient-to-r bg-black text-white font-bold rounded-lg shadow-lg  focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200"
                 type="submit"
-                disabled={isLoading}
+                disabled={busy}
               >
-                {isLoading ? (
+                {busy ? (
                   <Loader className="w-6 h-6 animate-spin  mx-auto" />
                 ) : (
                   "Login"

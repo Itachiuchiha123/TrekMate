@@ -20,6 +20,10 @@ import ResetPasswordPage from "./components/ResetPasswordPage.jsx";
 import ForgotPasswordPage from "./components/ForgotPasswordPage.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { checkAuth } from "./features/auth/authSlice.js";
+import DashboardContent from "./Pages/DashBoardContent.jsx";
+import ProfilePage from "./Pages/ProfilePage.jsx";
+import DashboardLayout from "./layouts/DashboardLayout.jsx";
+import DashBoard from "./Pages/Dashboard.jsx";
 
 function App() {
   const {
@@ -56,7 +60,10 @@ function App() {
         <Routes>
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/" element={<DashBoard />}>
+              <Route index element={<DashboardContent />} />
+              <Route path="profile/:username" element={<ProfilePage />} />
+            </Route>
           </Route>
 
           {/* Public Routes */}

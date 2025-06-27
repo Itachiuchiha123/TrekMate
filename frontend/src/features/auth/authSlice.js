@@ -112,6 +112,7 @@ const initialState = {
     isLoading: true,
     isCheckingAuth: true,
     message: null,
+    busy: false,
 };
 
 // Slice
@@ -122,32 +123,34 @@ const authSlice = createSlice({
     extraReducers: (builder) => {
         // Signup
         builder.addCase(signup.pending, (state) => {
-            state.isLoading = true;
+            state.busy = true;
             state.error = null;
         });
         builder.addCase(signup.fulfilled, (state, action) => {
             state.user = action.payload;
             state.isAuthenticated = true;
-            state.isLoading = false;
+            state.busy = false;
+
         });
         builder.addCase(signup.rejected, (state, action) => {
             state.error = action.payload;
-            state.isLoading = false;
+            state.busy = false;
         });
 
         // Login
         builder.addCase(login.pending, (state) => {
-            state.isLoading = true;
+            state.busy = true;
             state.error = null;
         });
         builder.addCase(login.fulfilled, (state, action) => {
             state.user = action.payload;
             state.isAuthenticated = true;
-            state.isLoading = false;
+            state.busy = false;
+
         });
         builder.addCase(login.rejected, (state, action) => {
             state.error = action.payload;
-            state.isLoading = false;
+            state.busy = false;
         });
 
         // Logout
@@ -160,16 +163,16 @@ const authSlice = createSlice({
 
         // Verify Email
         builder.addCase(verifyEmail.pending, (state) => {
-            state.isLoading = true;
+            state.busy = true;
         });
         builder.addCase(verifyEmail.fulfilled, (state, action) => {
             state.user = action.payload;
             state.isAuthenticated = true;
-            state.isLoading = false;
+            state.busy = false;
         });
         builder.addCase(verifyEmail.rejected, (state, action) => {
             state.error = action.payload;
-            state.isLoading = false;
+            state.busy = false;
         });
 
         // Check Auth
@@ -191,28 +194,28 @@ const authSlice = createSlice({
 
         // Forgot Password
         builder.addCase(forgotPassword.pending, (state) => {
-            state.isLoading = true;
+            state.busy = true;
         });
         builder.addCase(forgotPassword.fulfilled, (state, action) => {
             state.message = action.payload;
-            state.isLoading = false;
+            state.busy = false;
         });
         builder.addCase(forgotPassword.rejected, (state, action) => {
             state.error = action.payload;
-            state.isLoading = false;
+            state.busy = false;
         });
 
         // Reset Password
         builder.addCase(resetPassword.pending, (state) => {
-            state.isLoading = true;
+            state.busy = true;
         });
         builder.addCase(resetPassword.fulfilled, (state, action) => {
             state.message = action.payload;
-            state.isLoading = false;
+            state.busy = false;
         });
         builder.addCase(resetPassword.rejected, (state, action) => {
             state.error = action.payload;
-            state.isLoading = false;
+            state.busy = false;
         });
 
         // 🔁 Update Profile
