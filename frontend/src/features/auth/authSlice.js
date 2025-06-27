@@ -8,7 +8,7 @@ const API_URL = process.env.NODE_ENV === "production"
     : "http://localhost:5000/api/auth";
 
 const USER_API = process.env.NODE_ENV === "production"
-    ? `${process.env.REACT_APP_BACKEND_URL}`
+    ? `${process.env.REACT_APP_BACKEND}`
     : "http://localhost:5000";
 
 // Async thunks

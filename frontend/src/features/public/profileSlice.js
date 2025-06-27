@@ -5,7 +5,7 @@ import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 const API_URL = process.env.NODE_ENV === 'production'
-    ? `${process.env.REACT_APP_BACKEND_URL}/api/user`
+    ? `${process.env.REACT_APP_BACKEND}/api/user`
     : 'http://localhost:5000/api/user';
 
 // Async thunk to fetch public profile

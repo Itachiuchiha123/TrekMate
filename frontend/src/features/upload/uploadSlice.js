@@ -4,7 +4,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const API_URL = process.env.NODE_ENV === "production"
-    ? `${process.env.REACT_APP_BACKEND_URL}/api/upload`
+    ? `${process.env.REACT_APP_BACKEND}/api/upload`
     : "http://localhost:5000/api/upload";
 
 // 🔁 Async thunk for uploading media (image/video)
