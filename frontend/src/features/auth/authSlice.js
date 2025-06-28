@@ -50,6 +50,20 @@ export const updateAvatar = createAsyncThunk(
     }
 );
 
+export const updateCoverPhoto = createAsyncThunk(
+    "auth/updateCoverPhoto",
+    async ({ url, public_id }, thunkAPI) => {
+        try {
+            const res = await axios.put(`${USER_API}/api/user/update-cover-photo`, { url, public_id });
+            return res.data.coverPhoto;
+        } catch (err) {
+            return thunkAPI.rejectWithValue(
+                err.response?.data?.msg || "Failed to update cover photo"
+            );
+        }
+    }
+);
+
 export const login = createAsyncThunk("auth/login", async ({ email, password }, thunkAPI) => {
     try {
         const res = await axios.post(`${API_URL}/login`, { email, password });
@@ -244,6 +258,21 @@ const authSlice = createSlice({
         builder.addCase(updateAvatar.rejected, (state, action) => {
             state.error = action.payload;
 
+        });
+
+        // 🖼️ Update Cover Photo
+        builder.addCase(updateCoverPhoto.pending, (state) => {
+            state.busy = true;
+        });
+        builder.addCase(updateCoverPhoto.fulfilled, (state, action) => {
+            if (state.user) {
+                state.user.coverImage = action.payload;
+            }
+            state.busy = false;
+        });
+        builder.addCase(updateCoverPhoto.rejected, (state, action) => {
+            state.error = action.payload;
+            state.busy = false;
         });
     }
 
