@@ -4,6 +4,7 @@ import uploadReducer from './features/upload/uploadSlice';
 import dashboardReducer from './features/dashboard/dashboardSlice';
 import profileReducer from './features/public/profileSlice';
 import followReducer from './features/follow/followSlice';
+import postsReducer from './features/posts/postSlice';
 
 export const store = configureStore({
     reducer: {
@@ -11,7 +12,8 @@ export const store = configureStore({
         upload: uploadReducer,
         dashboard: dashboardReducer,
         profile: profileReducer,
-        follow: followReducer
+        follow: followReducer,
+        posts: postsReducer
     },
 });
 export default store;

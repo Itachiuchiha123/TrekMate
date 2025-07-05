@@ -5,6 +5,7 @@ import FollowButton from "../components/FollowButton";
 import { checkAuth } from "../features/auth/authSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchPublicProfile } from "../features/public/profileSlice";
+import { fetchUserPosts } from "../features/posts/postSlice";
 import { useParams } from "react-router-dom";
 
 const ProfilePage = () => {
@@ -18,6 +19,9 @@ const ProfilePage = () => {
 
   const { user: currentuser } = useSelector((state) => state.auth);
   const { profile: fetchedProfile } = useSelector((state) => state.profile);
+  const { userPosts, userPostsLoading, userPostsError } = useSelector(
+    (state) => state.posts
+  );
 
   const isOwner = currentuser?.username === username;
 
@@ -25,7 +29,10 @@ const ProfilePage = () => {
     const loadData = async () => {
       setLoading(true);
       if (!isOwner && username) {
-        await dispatch(fetchPublicProfile(username));
+        dispatch(fetchPublicProfile(username));
+      }
+      if (isOwner) {
+        dispatch(fetchUserPosts({ page: 1 }));
       }
       setLoading(false);
     };
@@ -36,8 +43,10 @@ const ProfilePage = () => {
   useEffect(() => {
     if (isOwner) {
       setProfileData(currentuser);
+      console.log("Current user profile data:", currentuser);
     } else {
       setProfileData(fetchedProfile?.profile);
+      console.log("Fetched profile data:", fetchedProfile?.profile);
     }
   }, [isOwner, currentuser, fetchedProfile]);
 
@@ -71,7 +80,7 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="flex w-full bg-neutral-100 dark:bg-neutral-900 font-[Montserrat,sans-serif] pl-6">
+    <div className="flex w-full h-screen overflow-y-auto bg-neutral-100 dark:bg-neutral-900 font-[Montserrat,sans-serif] pl-6">
       <div className="flex flex-col w-full">
         {/* Cover */}
         <div className="relative w-full">
@@ -140,14 +149,12 @@ const ProfilePage = () => {
               </button>
             </div>
           </div>
-
           <EditProfileModal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
             user={profileData}
             onSave={handleSave}
           />
-
           {/* Bio & Info */}
           <p className="text-neutral-700 dark:text-neutral-300 mb-4 text-base">
             {user?.bio}
@@ -166,7 +173,6 @@ const ProfilePage = () => {
               {user?.website}
             </a>
           </div>
-
           {/* Stats */}
           <div className="grid grid-cols-3 gap-4 text-center mb-8">
             <div>
@@ -188,9 +194,98 @@ const ProfilePage = () => {
               <p className="text-sm text-neutral-500">Following</p>
             </div>
           </div>
-
-          {/* Example Event */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex gap-6 border-b border-neutral-200 dark:border-neutral-700 mb-6">
+            <button className="pb-2 border-b-2 border-blue-600 text-blue-600 font-semibold whitespace-nowrap">
+              Events
+            </button>
+            <button className="pb-2 text-neutral-500 hover:text-blue-600 whitespace-nowrap">
+              Posts
+            </button>
+            <button className="pb-2 text-neutral-500 hover:text-blue-600 whitespace-nowrap">
+              Liked
+            </button>
+            <button className="pb-2 text-neutral-500 hover:text-blue-600 whitespace-nowrap">
+              Saved
+            </button>
+          </div>
+          {/*  User's Posts Section (only for owner) */}
+          {isOwner && (
+            <div className="mt-8">
+              <h3 className="text-xl font-bold mb-4 text-neutral-800 dark:text-neutral-100">
+                Your Posts
+              </h3>
+              {userPostsLoading && <p>Loading posts...</p>}
+              {userPostsError && (
+                <p className="text-red-500">{userPostsError}</p>
+              )}
+              {userPosts && userPosts.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-[2px] bg-neutral-900 dark:bg-black">
+                  {userPosts.map((post) => (
+                    <div
+                      key={post._id}
+                      className="relative aspect-square bg-neutral-200 dark:bg-neutral-800 overflow-hidden group cursor-pointer"
+                    >
+                      {post.media_urls && post.media_urls.length > 0 ? (
+                        post.media_urls[0].match(/\.(mp4|webm|ogg)$/i) ? (
+                          <video
+                            src={post.media_urls[0]}
+                            className="w-full h-full object-cover"
+                            muted
+                            loop
+                            playsInline
+                            preload="metadata"
+                            poster="/trekker-avatar.png"
+                          />
+                        ) : (
+                          <img
+                            src={post.media_urls[0]}
+                            alt="Post Media"
+                            className="w-full h-full object-cover"
+                          />
+                        )
+                      ) : (
+                        <div className="flex items-center justify-center w-full h-full text-neutral-400 text-4xl bg-neutral-100 dark:bg-neutral-900">
+                          <span>📷</span>
+                        </div>
+                      )}
+                      {/* Overlay on hover */}
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col justify-center items-center text-white transition-opacity duration-200">
+                        <div className="font-semibold text-xs px-2 text-center truncate w-full">
+                          {post.caption}
+                        </div>
+                      </div>
+                      {/* Media type icon */}
+                      {post.media_urls &&
+                        post.media_urls.length > 0 &&
+                        post.media_urls[0].match(/\.(mp4|webm|ogg)$/i) && (
+                          <span className="absolute top-2 right-2 text-white text-xl bg-black/60 rounded-full p-1">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              className="w-5 h-5"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M4 6.5A2.5 2.5 0 016.5 4h11A2.5 2.5 0 0120 6.5v11a2.5 2.5 0 01-2.5 2.5h-11A2.5 2.5 0 014 17.5v-11z"
+                              />
+                            </svg>
+                          </span>
+                        )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                !userPostsLoading && (
+                  <p className="text-neutral-500">No posts yet.</p>
+                )
+              )}
+            </div>
+          )}
+          {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white dark:bg-neutral-800 rounded-xl shadow border border-neutral-200 dark:border-neutral-700 p-6">
               <div className="flex items-center gap-2 mb-3">
                 <img
@@ -234,7 +329,7 @@ const ProfilePage = () => {
                 </span>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
