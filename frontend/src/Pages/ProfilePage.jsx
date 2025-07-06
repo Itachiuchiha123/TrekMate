@@ -5,14 +5,18 @@ import FollowButton from "../components/FollowButton";
 import { checkAuth } from "../features/auth/authSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchPublicProfile } from "../features/public/profileSlice";
-import { fetchUserPosts } from "../features/posts/postSlice";
+import { fetchUserPosts, deletePost } from "../features/posts/postSlice";
 import { useParams } from "react-router-dom";
+import { MoreHorizontal } from "lucide-react";
+import toast from "react-hot-toast";
+import UpdatePostModal from "../components/UpdatePostModal";
 
 const ProfilePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCoverModalOpen, setIsCoverModalOpen] = useState(false);
   const [loading, setLoading] = useState(true); // ✅ Loading state
   const [profileData, setProfileData] = useState(null);
+  const [editPost, setEditPost] = useState(null);
 
   const { username } = useParams();
   const dispatch = useDispatch();
@@ -65,7 +69,98 @@ const ProfilePage = () => {
     }
   };
 
-  // ✅ Properly show unavailable message
+  //menu button component
+  const MenuButton = ({ post }) => {
+    const [open, setOpen] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
+    const dispatch = useDispatch();
+
+    const handleDelete = () => {
+      setShowConfirm(true);
+      setOpen(false);
+    };
+
+    const confirmDelete = async () => {
+      try {
+        await dispatch(deletePost(post._id)).unwrap();
+        if (isOwner) {
+          dispatch(fetchUserPosts({ page: 1 }));
+        } else {
+          await refetchProfile();
+        }
+        toast.success("Post deleted successfully!");
+      } catch (err) {
+        toast.error(err?.message || "Failed to delete post");
+      } finally {
+        setShowConfirm(false);
+      }
+    };
+
+    const handleUpdate = () => {
+      setOpen(false);
+      setEditPost(post);
+    };
+
+    return (
+      <div className="relative inline-block text-left">
+        <button
+          type="button"
+          className="p-1 rounded-full bg-black/60 hover:bg-black/80 text-white"
+          onClick={() => setOpen((v) => !v)}
+        >
+          <MoreHorizontal size={20} />
+        </button>
+        {open && (
+          <div className="absolute right-0 mt-2 w-36 rounded-md shadow-lg bg-white dark:bg-neutral-800 ring-1 ring-black ring-opacity-5 z-30">
+            <div className="py-1">
+              <button
+                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                onClick={handleDelete}
+              >
+                Delete Post
+              </button>
+              <button
+                className="w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                onClick={handleUpdate}
+              >
+                Update Post
+              </button>
+            </div>
+          </div>
+        )}
+        {/* Confirmation Modal */}
+        {showConfirm && (
+          <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40">
+            <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-lg p-6 w-full max-w-xs">
+              <h3 className="text-lg font-semibold mb-4 text-neutral-900 dark:text-white">
+                Delete Post?
+              </h3>
+              <p className="mb-6 text-neutral-700 dark:text-neutral-300">
+                Are you sure you want to delete this post? This action cannot be
+                undone.
+              </p>
+              <div className="flex justify-end gap-2">
+                <button
+                  className="px-4 py-2 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 font-semibold"
+                  onClick={() => setShowConfirm(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 rounded bg-red-600 text-white font-semibold hover:bg-red-700"
+                  onClick={confirmDelete}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // unavailable message
   if (!loading && !user) {
     return (
       <div className="flex items-center justify-center w-full h-screen bg-black">
@@ -194,8 +289,9 @@ const ProfilePage = () => {
               <p className="text-sm text-neutral-500">Following</p>
             </div>
           </div>
+          {/* Tabs */}
           <div className="flex gap-6 border-b border-neutral-200 dark:border-neutral-700 mb-6">
-            <button className="pb-2 border-b-2 border-blue-600 text-blue-600 font-semibold whitespace-nowrap">
+            {/* <button className="pb-2 border-b-2 border-blue-600 text-blue-600 font-semibold whitespace-nowrap">
               Events
             </button>
             <button className="pb-2 text-neutral-500 hover:text-blue-600 whitespace-nowrap">
@@ -206,7 +302,7 @@ const ProfilePage = () => {
             </button>
             <button className="pb-2 text-neutral-500 hover:text-blue-600 whitespace-nowrap">
               Saved
-            </button>
+            </button> */}
           </div>
           {/*  User's Posts Section (only for owner) */}
           {isOwner && (
@@ -225,6 +321,10 @@ const ProfilePage = () => {
                       key={post._id}
                       className="relative aspect-square bg-neutral-200 dark:bg-neutral-800 overflow-hidden group cursor-pointer"
                     >
+                      {/* Triple dot menu */}
+                      <div className="absolute top-2 right-2 z-20">
+                        <MenuButton post={post} />
+                      </div>
                       {post.media_urls && post.media_urls.length > 0 ? (
                         post.media_urls[0].match(/\.(mp4|webm|ogg)$/i) ? (
                           <video
@@ -258,7 +358,7 @@ const ProfilePage = () => {
                       {post.media_urls &&
                         post.media_urls.length > 0 &&
                         post.media_urls[0].match(/\.(mp4|webm|ogg)$/i) && (
-                          <span className="absolute top-2 right-2 text-white text-xl bg-black/60 rounded-full p-1">
+                          <span className="absolute top-2 right-8 text-white text-xl bg-black/60 rounded-full p-1">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               fill="none"
@@ -332,6 +432,20 @@ const ProfilePage = () => {
           </div> */}
         </div>
       </div>
+      <UpdatePostModal
+        post={editPost}
+        isOpen={!!editPost}
+        onClose={() => {
+          setEditPost(null);
+          if (isOwner) {
+            dispatch(fetchUserPosts({ page: 1 }));
+            dispatch(checkAuth());
+          } else {
+            refetchProfile();
+          }
+        }}
+        user={user}
+      />
     </div>
   );
 };

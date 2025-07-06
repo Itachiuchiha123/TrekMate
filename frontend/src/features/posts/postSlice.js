@@ -52,7 +52,15 @@ export const updatePost = createAsyncThunk(
     "posts/updatePost",
     async ({ postId, updatedData }, { rejectWithValue }) => {
         try {
-            const res = await axios.put(`/api/posts/${postId}`, updatedData);
+            // Ensure all required fields are present
+            const { caption, location, tags = [], is_public = true, media_urls } = updatedData;
+            const res = await axios.patch(`/api/posts/${postId}`, {
+                caption,
+                location,
+                tags,
+                is_public,
+                media_urls,
+            });
             return res.data.post;
         } catch (err) {
             return rejectWithValue(err.response?.data?.message || "Failed to update post");

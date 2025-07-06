@@ -17,7 +17,7 @@ import {
 } from "../features/posts/postSlice";
 import Feed from "../components/Feed";
 import { checkAuth } from "../features/auth/authSlice";
-
+import toast from "react-hot-toast";
 import axios from "axios";
 
 const DashboardContent = () => {
@@ -31,6 +31,7 @@ const DashboardContent = () => {
     posts,
     loading: postsLoading,
     mediaUploading,
+    mediaUploadError,
   } = useSelector((state) => state.posts);
 
   const fileInputRef = useRef(null);
@@ -80,10 +81,16 @@ const DashboardContent = () => {
         const uploadedMedia = await dispatch(
           uploadPostMedia(formData)
         ).unwrap();
+
         if (uploadedMedia && Array.isArray(uploadedMedia)) {
           mediaUrls = uploadedMedia.map((m) => m.url);
+        } else {
+          toast.error(
+            mediaUploadError || "Failed to upload media. Please try again."
+          );
         }
       }
+
       const autoTags = extractTags(post);
       const payload = {
         caption: post,

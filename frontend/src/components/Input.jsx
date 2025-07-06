@@ -11,7 +11,10 @@ const Input = ({ icon: Icon, type, ...props }) => {
       <input
         type={type !== "password" ? type : visible ? "text" : "password"}
         {...props}
-        className="w-full pl-10 pr-3 py-2 bg-gray-800 bg-opacity-50 rounded-lg border border-gray-700 focus:border-black focus:ring-2 focus:ring-black text-white placeholder-gray-400 transition duration-200"
+        className={
+          "w-full pl-10 pr-3 py-2 bg-gray-800 bg-opacity-50 rounded-lg border border-gray-700 focus:border-black focus:ring-2 focus:ring-black text-white placeholder-gray-400 transition duration-200 font-[Montserrat,sans-serif] " +
+          (props.className || "")
+        }
       />
       {type === "password" && (
         <button

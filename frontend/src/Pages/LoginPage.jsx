@@ -47,6 +47,7 @@ const LoginPage = () => {
                 placeholder="Email Address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                className="font-[Montserrat,sans-serif]"
               />
 
               <Input
@@ -55,6 +56,7 @@ const LoginPage = () => {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                className="font-[Montserrat,sans-serif]"
               />
 
               <div className="flex items-center mb-6">
