@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import PostCommentsModal from "./PostCommentsModal";
+import MediaSlider from "./MediaSlider";
 import { toggleLike } from "../features/posts/postSlice";
 import { timeAgo } from "../libs/utils";
 
@@ -103,69 +104,15 @@ const Feed = ({ posts, postsLoading }) => {
               )}
               {/* Media Slider */}
               {medias.length > 0 && (
-                <div className="w-full flex flex-col items-center bg-black/90 px-0 py-2 relative">
-                  <div className="relative w-full flex justify-center">
-                    {medias.map(
-                      (url, i) =>
-                        i === currentIdx &&
-                        (url.match(/\.(mp4|webm|ogg)$/i) ? (
-                          <div
-                            key={i}
-                            className="rounded-xl border border-neutral-300 dark:border-neutral-700 overflow-hidden w-full max-w-2xl mx-auto mb-2 bg-black"
-                          >
-                            <video
-                              src={url}
-                              controls
-                              className="w-full max-h-[600px] object-contain bg-black"
-                              style={{ display: "block" }}
-                            />
-                          </div>
-                        ) : (
-                          <div
-                            key={i}
-                            className="rounded-xl border border-neutral-300 dark:border-neutral-700 overflow-hidden w-full max-w-2xl mx-auto mb-2 bg-black"
-                          >
-                            <img
-                              src={url}
-                              alt="Post Media"
-                              className="w-full max-h-[600px] object-contain bg-black"
-                              style={{ display: "block" }}
-                            />
-                          </div>
-                        ))
-                    )}
-                    {medias.length > 1 && (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => handlePrev(idx, medias.length)}
-                          className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 text-white rounded-full p-1 z-10 hover:bg-black"
-                          aria-label="Previous"
-                        >
-                          &#8592;
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleNext(idx, medias.length)}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 text-white rounded-full p-1 z-10 hover:bg-black"
-                          aria-label="Next"
-                        >
-                          &#8594;
-                        </button>
-                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-                          {medias.map((_, i) => (
-                            <span
-                              key={i}
-                              className={`inline-block w-2 h-2 rounded-full ${
-                                i === currentIdx ? "bg-blue-500" : "bg-gray-400"
-                              } opacity-80`}
-                            ></span>
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
+                <MediaSlider
+                  medias={medias}
+                  currentIdx={currentIdx}
+                  onPrev={() => handlePrev(idx, medias.length)}
+                  onNext={() => handleNext(idx, medias.length)}
+                  setIdx={(i) =>
+                    setMediaIndex((prev) => ({ ...prev, [idx]: i }))
+                  }
+                />
               )}
               {/* Location & Tags */}
               <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-500 px-6 pt-2">
