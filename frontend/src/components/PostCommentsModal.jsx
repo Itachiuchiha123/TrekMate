@@ -9,9 +9,9 @@ const PostCommentsModal = ({ post, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-      <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-lg max-w-2xl w-full flex flex-col md:flex-row overflow-hidden relative">
+      <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-lg w-full h-full max-w-2xl md:max-w-2xl md:h-auto flex flex-col md:flex-row overflow-hidden relative md:rounded-xl md:m-0 m-0 md:my-8">
         {/* Media */}
-        <div className="flex-1 flex items-center justify-center bg-black min-h-[400px] md:min-h-[600px]">
+        <div className="flex-1 flex items-center justify-center bg-black min-h-[220px] max-h-[40vh] md:min-h-[400px] md:max-h-none md:h-auto">
           {medias.length > 0 ? (
             <MediaSlider
               medias={medias}
@@ -31,30 +31,31 @@ const PostCommentsModal = ({ post, onClose }) => {
           )}
         </div>
         {/* Comments Section */}
-        <div className="flex-1 flex flex-col p-4 min-w-[300px] max-w-[400px]">
+        <div className="flex-1 flex flex-col p-2 md:p-4 min-w-0 w-full max-w-full md:min-w-[300px] md:max-w-[400px] bg-white dark:bg-neutral-900">
           <button
-            className="absolute top-2 right-2 text-neutral-500 hover:text-red-500 text-2xl font-bold"
+            className="absolute top-2 right-2 text-neutral-500 hover:text-red-500 text-3xl md:text-2xl font-bold w-10 h-10 flex items-center justify-center md:w-auto md:h-auto z-10"
             onClick={onClose}
+            aria-label="Close"
           >
             ×
           </button>
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 mb-2 md:mb-4">
             <img
               src={post.user?.avatar?.url || "/trekker-avatar.png"}
               alt="Profile"
               className="w-8 h-8 rounded-full object-cover"
             />
-            <span className="font-semibold text-neutral-800 dark:text-neutral-100">
+            <span className="font-semibold text-neutral-800 dark:text-neutral-100 text-sm md:text-base">
               {post.user?.name}
             </span>
             <span className="text-xs text-neutral-400 ml-2">
               {post.createdAt ? timeAgo(post.createdAt) : ""}
             </span>
           </div>
-          <div className="text-base text-black dark:text-white mb-4 whitespace-pre-wrap">
+          <div className="text-sm md:text-base text-black dark:text-white mb-2 md:mb-4 whitespace-pre-wrap break-words">
             {post.caption}
           </div>
-          <div className="flex-1 overflow-y-auto border-t border-neutral-200 dark:border-neutral-800 pt-2 mb-2">
+          <div className="flex-1 overflow-y-auto border-t border-neutral-200 dark:border-neutral-800 pt-2 mb-2 min-h-[60px]">
             {/* TODO: Render comments here */}
             <div className="text-neutral-500 text-center mt-8">
               No comments yet.
@@ -63,13 +64,13 @@ const PostCommentsModal = ({ post, onClose }) => {
           <form className="flex items-center gap-2 border-t border-neutral-200 dark:border-neutral-800 pt-2">
             <input
               type="text"
-              className="flex-1 rounded-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 text-black dark:text-white outline-none"
+              className="flex-1 rounded-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 text-black dark:text-white outline-none text-sm md:text-base"
               placeholder="Add a comment..."
               disabled
             />
             <button
               type="submit"
-              className="text-blue-500 font-semibold"
+              className="text-blue-500 font-semibold text-sm md:text-base"
               disabled
             >
               Post
