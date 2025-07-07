@@ -25,19 +25,26 @@ const MediaSlider = ({ medias, currentIdx, onPrev, onNext, setIdx }) => {
       setLastPan({ x: 0, y: 0 });
     }
   };
-  // Double tap for mobile
+  // Double tap for mobile (timer-based)
+  const doubleTapTimeout = React.useRef(null);
+  const [tapCount, setTapCount] = useState(0);
+
   const handleTouchStart = (e) => {
     if (e.touches.length === 1) {
-      const now = Date.now();
-      if (now - lastTap < 300) {
+      setTapCount((prev) => prev + 1);
+      if (doubleTapTimeout.current) clearTimeout(doubleTapTimeout.current);
+      doubleTapTimeout.current = setTimeout(() => {
+        setTapCount(0);
+      }, 350);
+      if (tapCount === 1) {
         setZoomed((z) => !z);
         setPan({ x: 0, y: 0 });
         setLastPan({ x: 0, y: 0 });
-        setLastTap(0);
+        setTapCount(0);
+        if (doubleTapTimeout.current) clearTimeout(doubleTapTimeout.current);
         e.preventDefault();
         return;
       }
-      setLastTap(now);
     }
     if (!zoomed) setStartX(e.touches[0].clientX);
     setMoved(false);
@@ -48,6 +55,7 @@ const MediaSlider = ({ medias, currentIdx, onPrev, onNext, setIdx }) => {
       });
     }
   };
+
   const handleTouchMove = (e) => {
     if (zoomed && panStart) {
       setPan({
@@ -139,7 +147,7 @@ const MediaSlider = ({ medias, currentIdx, onPrev, onNext, setIdx }) => {
             i === currentIdx && (
               <div
                 key={i}
-                className="rounded-xl border border-neutral-300 dark:border-neutral-700 overflow-hidden w-full max-w-2xl mx-auto mb-2 bg-black"
+                className="rounded-xl border border-neutral-300 dark:border-neutral-700 overflow-hidden w-full max-w-2xl mx-auto mb-2 bg-black relative min-h-[400px] md:min-h-[600px] flex items-center justify-center"
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}

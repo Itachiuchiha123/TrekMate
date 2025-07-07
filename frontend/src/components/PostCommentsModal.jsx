@@ -1,31 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import { timeAgo } from "../libs/utils";
+import MediaSlider from "./MediaSlider";
 
 const PostCommentsModal = ({ post, onClose }) => {
   if (!post) return null;
-  const isVideo =
-    post.media_urls &&
-    post.media_urls.length > 0 &&
-    post.media_urls[0].match(/\.(mp4|webm|ogg)$/i);
+  const [mediaIdx, setMediaIdx] = useState(0);
+  const medias = Array.isArray(post.media_urls) ? post.media_urls : [];
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
       <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-lg max-w-2xl w-full flex flex-col md:flex-row overflow-hidden relative">
         {/* Media */}
-        <div className="flex-1 flex items-center justify-center bg-black">
-          {post.media_urls && post.media_urls.length > 0 ? (
-            isVideo ? (
-              <video
-                src={post.media_urls[0]}
-                controls
-                className="w-full h-full max-h-[70vh] object-contain bg-black"
-              />
-            ) : (
-              <img
-                src={post.media_urls[0]}
-                alt="Post Media"
-                className="w-full h-full max-h-[70vh] object-contain bg-black"
-              />
-            )
+        <div className="flex-1 flex items-center justify-center bg-black min-h-[400px] md:min-h-[600px]">
+          {medias.length > 0 ? (
+            <MediaSlider
+              medias={medias}
+              currentIdx={mediaIdx}
+              onPrev={() =>
+                setMediaIdx((prev) => (prev > 0 ? prev - 1 : medias.length - 1))
+              }
+              onNext={() =>
+                setMediaIdx((prev) => (prev < medias.length - 1 ? prev + 1 : 0))
+              }
+              setIdx={setMediaIdx}
+            />
           ) : (
             <div className="flex items-center justify-center w-full h-full text-neutral-400 text-4xl bg-neutral-100 dark:bg-neutral-900">
               <span>📷</span>
