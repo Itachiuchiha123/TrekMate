@@ -1,15 +1,13 @@
 import "./App.css";
 import { lazy } from "react";
 import { Suspense } from "react";
-import { motion } from "framer-motion";
-import mountain from "./assets/mountain.svg";
-
+import Loader from "./components/loader";
 const NavBar = lazy(() => import("./components/NavBar"));
 const Hero = lazy(() => import("./components/hero"));
 
 function App() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<Loader />}>
       <div className="relative overflow-hidden">
         <NavBar />
         <Hero />

@@ -8,11 +8,13 @@ const Hero = () => {
     <>
       <div className="h-screen w-screen flex items-center justify-center">
         <motion.div
-          className=" fixed top-0 left-0  h-full w-full flex items-center"
+          className="fixed top-0 left-0 flex items-center"
           style={{
             backgroundImage: `url(${image})`,
+            width: "100%",
+            height: "100vh",
+            objectFit: "cover",
             backgroundRepeat: "no-repeat",
-            backgroundSize: "cover",
             backgroundPosition: "center",
           }}
           initial={{ backgroundSize: "150%" }}
@@ -20,15 +22,15 @@ const Hero = () => {
           transition={{ duration: 1, ease: "easeInOut" }}
         >
           <motion.div
-            className="ml-10 p-4 md:p-8"
+            className="ml-4 p-2 md:ml-10 md:p-8"
             initial={{ y: -100 }}
             animate={{ y: 0 }}
             transition={{ duration: 1, ease: "easeInOut" }}
           >
-            <h1 className="text-white text-2xl md:text-4xl">
+            <h1 className="text-white text-xl md:text-4xl lg:text-5xl">
               Welcome to TrekMate
             </h1>
-            <p className="text-white text-sm md:text-[17px] avenir-font">
+            <p className="text-white text-xs md:text-[17px] lg:text-lg avenir-font">
               Explore the world with us!
             </p>
           </motion.div>
@@ -36,7 +38,12 @@ const Hero = () => {
       </div>
       <motion.img
         src={mountain}
-        className="absolute z-10 w-screen left-0"
+        style={{
+          width: "100%",
+          height: "100vh",
+          objectFit: "cover",
+        }}
+        className="absolute z-10 w-full left-0"
         alt="second image"
         initial={{ top: "10%" }}
         animate={{ top: "0%" }}
