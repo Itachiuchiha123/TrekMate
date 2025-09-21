@@ -1,6 +1,6 @@
 import React from "react";
 import { ContainerScroll } from "./ui/ContainerScroll";
-import trek from "../assets/trekking.jpg";
+import trek from "../assets/trekking.webp";
 
 const HeroScrollDemo = () => {
   return (

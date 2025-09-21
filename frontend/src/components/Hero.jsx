@@ -1,5 +1,5 @@
-import image from "../assets/image.png";
-import mountain from "../assets/mountain.svg";
+import image from "../assets/image.webp";
+import mountain from "../assets/mountain.webp";
 import { motion } from "framer-motion";
 import React from "react";
 
