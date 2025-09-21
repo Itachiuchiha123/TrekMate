@@ -4,7 +4,7 @@ import Loader from "./components/Loader.jsx"; // Ensure this path is correct
 import { ReactLenis } from "lenis/dist/lenis-react";
 
 const NavBar = lazy(() => import("./components/NavBar"));
-const Hero = lazy(() => import("./components/hero"));
+const Hero = lazy(() => import("./components/Hero.jsx"));
 const HeroScrollDemo = lazy(() => import("./components/HeroScrollDemo"));
 const Paragraph = lazy(() => import("./components/Paragraph"));
 
