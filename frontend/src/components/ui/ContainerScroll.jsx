@@ -51,10 +51,24 @@ export const ContainerScroll = ({ titleComponent, children }) => {
 export const Header = ({ translate, titleComponent }) => {
   return (
     <motion.div
-      style={{
-        translateY: translate,
-      }}
       className="div max-w-5xl mx-auto text-center"
+      variants={() => {
+        return {
+          hidden: {
+            y: -50,
+            opacity: 0,
+          },
+          show: {
+            y: 0,
+            opacity: 1,
+            transition: {
+              type: "spring",
+              duration: 1.25,
+              delay: delay,
+            },
+          },
+        };
+      }}
     >
       {titleComponent}
     </motion.div>

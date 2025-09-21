@@ -8,16 +8,14 @@ const Hero = () => {
     <>
       <div className="h-screen w-screen flex items-center justify-center">
         <motion.div
-          className="top-0 left-0 flex items-center"
+          className="fixed top-0 left-0 flex items-center"
           style={{
             backgroundImage: `url(${image})`,
             width: "100%",
             height: "100vh",
-
+            objectFit: "cover",
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
-            backgroundSize: "cover",
-            backgroundAttachment: "fixed",
           }}
           initial={{ backgroundSize: "150%" }}
           animate={{ backgroundSize: "100%" }}
@@ -44,9 +42,6 @@ const Hero = () => {
           width: "100%",
           height: "100vh",
           objectFit: "cover",
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "center",
-          backgroundSize: "cover",
         }}
         className="absolute z-10 w-full left-0"
         alt="second image"
