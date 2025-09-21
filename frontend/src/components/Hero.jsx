@@ -2,17 +2,27 @@ import image from "../assets/image.webp";
 import mountain from "../assets/mountain.webp";
 import { motion } from "framer-motion";
 import React from "react";
+import { useRef } from "react";
+import { useScroll, useTransform } from "framer-motion";
 
 const Hero = () => {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
+
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+  const TextY = useTransform(scrollYProgress, [0, 1], ["0%", "200%"]);
+
   return (
     <>
-      <div className="h-screen w-screen flex items-center justify-center">
+      <div className="h-screen w-full relative " ref={ref}>
         <motion.div
-          className="fixed top-0 left-0 flex items-center"
+          className="absolute inset-0 z-0 flex items-center"
           style={{
             backgroundImage: `url(${image})`,
-            width: "100%",
-            height: "100vh",
+            y: backgroundY,
             objectFit: "cover",
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
@@ -26,6 +36,7 @@ const Hero = () => {
             initial={{ y: -100 }}
             animate={{ y: 0 }}
             transition={{ duration: 1, ease: "easeInOut" }}
+            style={{ y: TextY }}
           >
             <h1 className="text-white text-xl md:text-4xl lg:text-5xl">
               Welcome to TrekMate
@@ -35,20 +46,21 @@ const Hero = () => {
             </p>
           </motion.div>
         </motion.div>
+
+        <motion.img
+          src={mountain}
+          style={{
+            objectFit: "cover",
+            backgroundPosition: "bottom",
+            backgroundSize: "cover",
+          }}
+          className="absolute inset-0 z-10"
+          alt="second image"
+          initial={{ top: "10%" }}
+          animate={{ top: "0%" }}
+          transition={{ duration: 1, ease: "easeInOut" }}
+        />
       </div>
-      <motion.img
-        src={mountain}
-        style={{
-          width: "100%",
-          height: "100vh",
-          objectFit: "cover",
-        }}
-        className="absolute z-10 w-full left-0"
-        alt="second image"
-        initial={{ top: "10%" }}
-        animate={{ top: "0%" }}
-        transition={{ duration: 1, ease: "easeInOut" }}
-      />
     </>
   );
 };
