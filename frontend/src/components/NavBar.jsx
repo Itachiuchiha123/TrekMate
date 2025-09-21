@@ -6,7 +6,7 @@ import { FaInstagram, FaFacebook, FaGithub } from "react-icons/fa";
 const NavBar = () => {
   return (
     <motion.div
-      className="fixed top-0 left-0 w-full z-20 bg-transparent"
+      className="relative md:fixed top-0 left-0 w-full z-20 bg-transparent"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 1, ease: "easeInOut" }}
@@ -20,10 +20,26 @@ const NavBar = () => {
         <div>
           <img src={logo} alt="logo" className="h-10" />
         </div>
-        <div className="flex items-center space-x-5 text-xl">
-          <FaInstagram />
+        <div className="flex items-center space-x-5">
+          {/* <FaInstagram />
           <FaFacebook />
-          <FaGithub />
+          <FaGithub /> */}
+          <button
+            className="bg-transparent  p-1 rounded-lg"
+            onClick={() => {
+              window.location.href = "/signup";
+            }}
+          >
+            Sign up
+          </button>
+          <button
+            className="bg-transparent  p-1 rounded-lg"
+            onClick={() => {
+              window.location.href = "/signup";
+            }}
+          >
+            Log in
+          </button>
         </div>
       </div>
     </motion.div>

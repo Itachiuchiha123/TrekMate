@@ -2,18 +2,29 @@ import "./App.css";
 import { lazy } from "react";
 import { Suspense } from "react";
 import Loader from "./components/loader";
+import { ReactLenis } from "lenis/dist/lenis-react";
+
 const NavBar = lazy(() => import("./components/NavBar"));
 const Hero = lazy(() => import("./components/hero"));
+const HeroScrollDemo = lazy(() => import("./components/HeroScrollDemo"));
+const Paragraph = lazy(() => import("./components/Paragraph"));
 
 function App() {
   return (
     <Suspense fallback={<Loader />}>
-      <div className="relative overflow-hidden">
-        <NavBar />
-        <Hero />
-
-        <div className="relative h-screen w-screen bg-gradient-to-b from-[#010101] to-black"></div>
-      </div>
+      <ReactLenis
+        root
+        options={{
+          lerp: 0.05,
+        }}
+      >
+        <div className="relative overflow-hidden">
+          <NavBar />
+          <Hero />
+          <HeroScrollDemo />
+          <Paragraph />
+        </div>
+      </ReactLenis>
     </Suspense>
   );
 }
