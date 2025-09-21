@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import React from "react";
 import { useRef } from "react";
 import { useScroll, useTransform } from "framer-motion";
+import { useMediaQuery } from "react-responsive";
 
 const Hero = () => {
   const ref = useRef(null);
@@ -15,20 +16,22 @@ const Hero = () => {
   const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
   const TextY = useTransform(scrollYProgress, [0, 1], ["0%", "200%"]);
 
+  const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
+
   return (
     <>
-      <div className="h-screen w-full relative " ref={ref}>
+      <div className="h-screen w-full relative" ref={ref}>
         <motion.div
-          className="absolute inset-0 z-0 flex items-center"
+          className="absolute w-full h-full inset-0 z-0 flex items-center bg-black "
           style={{
             backgroundImage: `url(${image})`,
             y: backgroundY,
-            objectFit: "cover",
+            backgroundSize: "cover",
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
           }}
-          initial={{ backgroundSize: "150%" }}
-          animate={{ backgroundSize: "100%" }}
+          initial={{ backgroundSize: isMobile ? "200%" : "150%" }}
+          animate={{ backgroundSize: isMobile ? "cover" : "100%" }}
           transition={{ duration: 1, ease: "easeInOut" }}
         >
           <motion.div
@@ -38,10 +41,10 @@ const Hero = () => {
             transition={{ duration: 1, ease: "easeInOut" }}
             style={{ y: TextY }}
           >
-            <h1 className="text-white text-xl md:text-4xl lg:text-5xl">
+            <h1 className="text-white text-2xl md:text-4xl lg:text-5xl">
               Welcome to TrekMate
             </h1>
-            <p className="text-white text-xs md:text-[17px] lg:text-lg avenir-font">
+            <p className="text-white text-2xs md:text-[17px] lg:text-lg avenir-font">
               Explore the world with us!
             </p>
           </motion.div>
@@ -54,7 +57,7 @@ const Hero = () => {
             backgroundPosition: "bottom",
             backgroundSize: "cover",
           }}
-          className="absolute inset-0 z-10"
+          className="absolute inset-0 z-10 w-full h-full object-cover"
           alt="second image"
           initial={{ top: "10%" }}
           animate={{ top: "0%" }}
