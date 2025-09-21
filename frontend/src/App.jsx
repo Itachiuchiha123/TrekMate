@@ -1,7 +1,6 @@
 import "./App.css";
-import { lazy } from "react";
-import { Suspense } from "react";
-import Loader from "./components/loader";
+import { lazy, Suspense } from "react";
+import Loader from "./components/Loader.jsx"; // Ensure this path is correct
 import { ReactLenis } from "lenis/dist/lenis-react";
 
 const NavBar = lazy(() => import("./components/NavBar"));
