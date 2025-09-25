@@ -1,30 +1,37 @@
 import "./App.css";
 import { lazy, Suspense } from "react";
-import Loader from "./components/Loader.jsx"; // Ensure this path is correct
-import { ReactLenis } from "lenis/dist/lenis-react";
+import Loader from "./components/Loader";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { useAuthStore } from "./store/authStore.js";
+const LandingPage = lazy(() => import("./Pages/LandingPage.jsx"));
+const LoginPage = lazy(() => import("./Pages/LoginPage.jsx"));
 
-const NavBar = lazy(() => import("./components/NavBar"));
-const Hero = lazy(() => import("./components/Hero.jsx"));
-const HeroScrollDemo = lazy(() => import("./components/HeroScrollDemo"));
-const Paragraph = lazy(() => import("./components/Paragraph"));
+const ProtectedRoute = () => {
+  const { isAuthenticated, user } = useAuthStore();
+  console.log(isAuthenticated);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/landingpage" replace />;
+  }
+
+  if (!user.isVerfied) {
+    return <Navigate to="/verify-email" replace />;
+  }
+  return <Outlet />;
+};
 
 function App() {
   return (
-    <Suspense fallback={<Loader />}>
-      <ReactLenis
-        root
-        options={{
-          lerp: 0.05,
-        }}
-      >
-        <div className="relative overflow-hidden">
-          <NavBar />
-          <Hero />
-          <HeroScrollDemo />
-          <Paragraph />
-        </div>
-      </ReactLenis>
-    </Suspense>
+    <BrowserRouter>
+      <Suspense fallback={<Loader />}>
+        <Routes>
+          <Route path="/" element={<ProtectedRoute />}></Route>
+          <Route path="/landingpage" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="*" element={<Navigate to="/landingpage" replace />} />
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
   );
 }
 

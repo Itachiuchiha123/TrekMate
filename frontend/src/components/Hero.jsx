@@ -37,7 +37,7 @@ const Hero = () => {
           <motion.div
             className="ml-4 p-2 md:ml-10 md:p-8"
             initial={{ y: -100 }}
-            animate={{ y: 0 }}
+            animate={{ y: -10 }}
             transition={{ duration: 1, ease: "easeInOut" }}
             style={{ y: TextY }}
           >

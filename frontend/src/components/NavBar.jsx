@@ -31,7 +31,9 @@ const NavBar = () => {
           </div>
         </div>
         <div className="flex justify-center w-full md:w-auto">
-          <img src={logo} alt="logo" className="h-10" />
+          <a href="/">
+            <img src={logo} alt="logo" className="h-10" />
+          </a>
         </div>
 
         <div className="hidden md:flex items-center space-x-5 ">

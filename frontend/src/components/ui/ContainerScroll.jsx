@@ -62,6 +62,7 @@ export const Header = ({ translate, translatex, titleComponent }) => {
         style={{
           x: translate,
         }}
+        animate={{ duration: 1, x: 0 }}
       >
         <h1 className="text-4xl font-semibold text-black dark:text-white">
           Welcome to the world of
@@ -73,6 +74,7 @@ export const Header = ({ translate, translatex, titleComponent }) => {
         style={{
           x: translatex,
         }}
+        animate={{ duration: 1, x: 0 }}
       >
         {titleComponent}
       </motion.div>
