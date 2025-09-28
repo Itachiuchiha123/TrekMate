@@ -35,8 +35,9 @@ function App() {
       <Suspense fallback={<Loader />}>
         <Routes>
           {/* <Route path="/" element={<ProtectedRoute />}></Route> */}
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<LandingPage />} />
-          <Route path="login" element={<LoginPage />} />
+
           {/* <Route path="*" element={<Navigate to="/landingpage" replace />} /> */}
         </Routes>
       </Suspense>
