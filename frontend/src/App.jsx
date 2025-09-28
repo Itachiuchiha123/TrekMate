@@ -10,7 +10,7 @@ const ProtectedRoute = () => {
   const { isAuthenticated, user } = useAuthStore();
   console.log(isAuthenticated);
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || isAuthenticated === null) {
     return <Navigate to="/landingpage" replace />;
   }
 
