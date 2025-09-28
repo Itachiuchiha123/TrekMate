@@ -36,6 +36,7 @@ function App() {
         <Routes>
           {/* <Route path="/" element={<ProtectedRoute />}></Route> */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/landingpage" element={<Users />} />
           <Route path="/" element={<LandingPage />} />
 
           {/* <Route path="*" element={<Navigate to="/landingpage" replace />} /> */}
@@ -43,6 +44,10 @@ function App() {
       </Suspense>
     </BrowserRouter>
   );
+}
+
+function Users() {
+  return <h2>Users</h2>;
 }
 
 export default App;
