@@ -1,5 +1,5 @@
 import "./App.css";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import Loader from "./components/Loader";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { useAuthStore } from "./store/authStore.js";
@@ -9,6 +9,7 @@ const LoginPage = lazy(() => import("./Pages/LoginPage.jsx"));
 const ProtectedRoute = () => {
   const { isAuthenticated, user } = useAuthStore();
   console.log(isAuthenticated);
+  console.log(user);
 
   if (!isAuthenticated || isAuthenticated === null) {
     return <Navigate to="/landingpage" replace />;
@@ -21,6 +22,14 @@ const ProtectedRoute = () => {
 };
 
 function App() {
+  const { isCheckingAuth, checkAuth } = useAuthStore();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  if (isCheckingAuth) return <Loader />;
+
   return (
     <BrowserRouter>
       <Suspense fallback={<Loader />}>
