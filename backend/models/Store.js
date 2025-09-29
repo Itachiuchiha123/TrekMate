@@ -4,12 +4,12 @@ var storeSchema = new mongoose.Schema({
     file_urls: {
         type: [String],
         required: true,
-        default: []
+        default: [],
     },
     user_id: {
         type: String,
-        required: true
-    }
+        required: true,
+    },
 });
 
-export const Store = mongoose.model('Store', storeSchema);
+export const Store = mongoose.model("Store", storeSchema);
