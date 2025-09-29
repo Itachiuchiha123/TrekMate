@@ -6,20 +6,20 @@ import { useAuthStore } from "./store/authStore.js";
 const LandingPage = lazy(() => import("./Pages/LandingPage.jsx"));
 const LoginPage = lazy(() => import("./Pages/LoginPage.jsx"));
 
-// const ProtectedRoute = () => {
-//   const { isAuthenticated, user } = useAuthStore();
-//   console.log(isAuthenticated);
-//   console.log(user);
+const ProtectedRoute = () => {
+  const { isAuthenticated, user } = useAuthStore();
+  console.log(isAuthenticated);
+  console.log(user);
 
-//   if (!isAuthenticated || isAuthenticated === null) {
-//     return <Navigate to="/landingpage" replace />;
-//   }
+  if (!isAuthenticated || isAuthenticated === null) {
+    return <Navigate to="/landingpage" replace />;
+  }
 
-//   if (!user.isVerfied) {
-//     return <Navigate to="/verify-email" replace />;
-//   }
-//   return <Outlet />;
-// };
+  if (!user.isVerfied) {
+    return <Navigate to="/verify-email" replace />;
+  }
+  return <Outlet />;
+};
 
 function App() {
   const { isCheckingAuth, checkAuth } = useAuthStore();
@@ -34,20 +34,16 @@ function App() {
     <BrowserRouter>
       <Suspense fallback={<Loader />}>
         <Routes>
-          {/* <Route path="/" element={<ProtectedRoute />}></Route> */}
+          <Route path="/" element={<ProtectedRoute />}></Route>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/landingpage" element={<Users />} />
-          <Route path="/" element={<LandingPage />} />
 
-          {/* <Route path="*" element={<Navigate to="/landingpage" replace />} /> */}
+          <Route path="/landingpage" element={<LandingPage />} />
+
+          <Route path="*" element={<Navigate to="/landingpage" replace />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
   );
-}
-
-function Users() {
-  return <h2>Users</h2>;
 }
 
 export default App;
