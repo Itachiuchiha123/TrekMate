@@ -9,8 +9,6 @@ import {
 } from "../mailtrap/emails.js";
 import crypto from "crypto";
 import dotenv from "dotenv";
-import { v4 as uuidv4 } from "uuid";
-import { Store } from "../models/Store.js";
 
 dotenv.config();
 
@@ -191,36 +189,5 @@ export const checkAuth = async (req, res) => {
     } catch (error) {
         console.log("error in checkAuth ", error);
         res.status(500).json({ success: false, message: "Server error" });
-    }
-};
-
-export const addbook = async (req, res) => {
-    const { user_id, url } = req.body;
-    try {
-        const user = await User.findById(user_id).select("-password");
-        if (!user) {
-            return res.status(404).send({ error: "User not found" });
-        }
-        const newEntry = {
-            id: uuidv4(),
-            url: url,
-        };
-        user.library.push(newEntry);
-        await user.save();
-        res.status(200).send(user);
-    } catch (error) {
-        res.status(400).send(error);
-    }
-};
-
-export const getAllStore = async (req, res) => {
-    const { user_id } = req.query;
-
-    try {
-        const store = await Store.find({ user_id });
-
-        res.send(store);
-    } catch (error) {
-        res.send(error);
     }
 };
