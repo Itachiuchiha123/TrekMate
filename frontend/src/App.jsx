@@ -1,10 +1,18 @@
 import "./App.css";
 import { lazy, Suspense, useEffect } from "react";
 import Loader from "./components/Loader";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Outlet,
+  Route,
+  Routes,
+} from "react-router-dom";
 import { useAuthStore } from "./store/authStore.js";
 const LandingPage = lazy(() => import("./Pages/LandingPage.jsx"));
-const LoginPage = lazy(() => import("./Pages/LoginPage.jsx"));
+
+import LoginPage from "./Pages/LoginPage.jsx";
+import Dashboard from "./Pages/Dashboard.jsx";
 
 const ProtectedRoute = () => {
   const { isAuthenticated, user } = useAuthStore();
@@ -34,7 +42,9 @@ function App() {
     <BrowserRouter>
       <Suspense fallback={<Loader />}>
         <Routes>
-          <Route path="/" element={<ProtectedRoute />}></Route>
+          <Route path="/" element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+          </Route>
           <Route path="/login" element={<LoginPage />} />
 
           <Route path="/landingpage" element={<LandingPage />} />

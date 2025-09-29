@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 
+console.log(process.env.NODE_ENV);
 const API_URL = "http://localhost:5000/api/auth";
 
 axios.defaults.withCredentials = true;
