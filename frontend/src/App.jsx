@@ -13,6 +13,9 @@ const LandingPage = lazy(() => import("./Pages/LandingPage.jsx"));
 
 import LoginPage from "./Pages/LoginPage.jsx";
 import Dashboard from "./Pages/Dashboard.jsx";
+import SignupPage from "./Pages/SignupPage.jsx";
+import SignWrapper from "./components/SignWrapper.jsx";
+import EmailVerificationPage from "./components/EmailVerificationPage.jsx";
 
 const ProtectedRoute = () => {
   const { isAuthenticated, user } = useAuthStore();
@@ -45,7 +48,30 @@ function App() {
           <Route path="/" element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
           </Route>
-          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/login"
+            element={
+              <SignWrapper signup={false}>
+                <LoginPage />
+              </SignWrapper>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <SignWrapper signup={true}>
+                <SignupPage />
+              </SignWrapper>
+            }
+          />
+          <Route
+            path="/verify-email"
+            element={
+              <SignWrapper signup={true}>
+                <EmailVerificationPage />
+              </SignWrapper>
+            }
+          />
 
           <Route path="/landingpage" element={<LandingPage />} />
 
