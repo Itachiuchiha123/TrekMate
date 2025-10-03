@@ -1,10 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import {
-  Sidebar,
-  SidebarBody,
-  SidebarLink,
-} from "../components/ui/Sidebar.jsx";
 
 import {
   IconArrowLeft,
@@ -18,6 +13,11 @@ import { useAuthStore } from "../store/authStore.js";
 import { cn } from "../libs/utils.ts";
 import logo from "../assets/logo.svg";
 import { User } from "lucide-react";
+import {
+  Sidebar,
+  SidebarBody,
+  SidebarLink,
+} from "../components/ui/SideBar.jsx";
 
 export default function DashBoard() {
   const { user } = useAuthStore();
