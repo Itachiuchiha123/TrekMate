@@ -6,6 +6,7 @@ import Input from "../components/Input";
 import { useAuthStore } from "../store/authStore";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
+import toast from "react-hot-toast";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -18,7 +19,8 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     await login(email, password);
-    navigate("/dashboard", { replace: true });
+    toast.success("Logged in successfully");
+    navigate("/dashboard");
   };
 
   return (

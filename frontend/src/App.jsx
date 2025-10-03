@@ -16,6 +16,9 @@ import Dashboard from "./Pages/Dashboard.jsx";
 import SignupPage from "./Pages/SignupPage.jsx";
 import SignWrapper from "./components/SignWrapper.jsx";
 import EmailVerificationPage from "./components/EmailVerificationPage.jsx";
+import { Toaster } from "react-hot-toast";
+import ResetPasswordPage from "./components/ResetPasswordPage.jsx";
+import ForgotPasswordPage from "./components/ForgotPasswordPage.jsx";
 
 const ProtectedRoute = () => {
   const { isAuthenticated, user } = useAuthStore();
@@ -72,11 +75,28 @@ function App() {
               </SignWrapper>
             }
           />
+          <Route
+            path="/forgot-password"
+            element={
+              <SignWrapper signup={true}>
+                <ForgotPasswordPage />
+              </SignWrapper>
+            }
+          />
+          <Route
+            path="/reset-password/:token"
+            element={
+              <SignWrapper signup={true}>
+                <ResetPasswordPage />
+              </SignWrapper>
+            }
+          />
 
           <Route path="/landingpage" element={<LandingPage />} />
 
           <Route path="*" element={<Navigate to="/landingpage" replace />} />
         </Routes>
+        <Toaster />
       </Suspense>
     </BrowserRouter>
   );
