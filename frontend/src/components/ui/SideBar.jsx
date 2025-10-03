@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import React, { useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { IconMenu2, IconX } from "@tabler/icons-react";
+import { useAuthStore } from "../../store/authStore";
+import toast from "react-hot-toast";
 
 const SidebarContext = createContext(undefined);
 
@@ -119,6 +121,7 @@ export const MobileSidebar = ({ className, children, ...props }) => {
 
 export const SidebarLink = ({ link, className, ...props }) => {
   const { open, animate } = useSidebar();
+  const { logout } = useAuthStore();
   return (
     <Link
       href={link.href}
@@ -127,6 +130,15 @@ export const SidebarLink = ({ link, className, ...props }) => {
         className
       )}
       {...props}
+      onClick={() => {
+        if (link.onClick) {
+          link.onClick();
+        }
+        if (link.label === "Logout") {
+          logout();
+          toast.success("Logged out successfully");
+        }
+      }}
     >
       {link.icon}
       <motion.span

@@ -29,9 +29,10 @@ const ProtectedRoute = () => {
     return <Navigate to="/landingpage" replace />;
   }
 
-  if (!user.isVerfied) {
+  if (!user?.isVerfied) {
     return <Navigate to="/verify-email" replace />;
   }
+
   return <Outlet />;
 };
 
@@ -48,9 +49,12 @@ function App() {
     <BrowserRouter>
       <Suspense fallback={<Loader />}>
         <Routes>
-          <Route path="/" element={<ProtectedRoute />}>
+          {/* Protected Routes */}
+          <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
           </Route>
+
+          {/* Public Routes */}
           <Route
             path="/login"
             element={
@@ -91,9 +95,9 @@ function App() {
               </SignWrapper>
             }
           />
-
           <Route path="/landingpage" element={<LandingPage />} />
 
+          {/* Catch-all */}
           <Route path="*" element={<Navigate to="/landingpage" replace />} />
         </Routes>
         <Toaster />
