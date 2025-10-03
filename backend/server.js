@@ -4,11 +4,9 @@ import { connectDB } from "./db/connectDB.js";
 import authRoutes from "./routes/auth.route.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import path from "path";
 
 const app = express();
 
-const __dirname = path.resolve();
 dotenv.config();
 
 // Use whitelist for cors
@@ -17,15 +15,28 @@ app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api/auth", authRoutes);
-if (process.env.NODE_ENV === "production") {
-    app.use(express.static(path.join(__dirname, "/frontend/dist")));
-    app.get("*", (req, res) => {
-        res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
-    });
-}
 
-app.use("/", (req, res) => {
-    res.json("Api started");
+// 404 error handler
+app.use((req, res, next) => {
+    next({ displayMessage: "Resource not found", status: 404 });
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+    console.error(err);
+
+    const displayJSON = {
+        statusCode: err.status || 500,
+        msg: err.displayMessage || "Internal Server Error",
+    };
+
+    if (process.env.NODE_ENV == "development") {
+        displayJSON.stack = err.stack;
+    }
+
+    res.status(displayJSON.statusCode).json(displayJSON);
+
+    next(); // for sanity
 });
 
 const PORT = process.env.PORT || 5000;
