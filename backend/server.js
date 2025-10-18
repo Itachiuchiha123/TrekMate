@@ -13,9 +13,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socket(server);
 
-const allowedOrigins = ["http://127.0.0.1:5173", "http://localhost:5173"];
-
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+const allowedOrigins = ["http://127.0.0.1:5173", "http://localhost:5173", "https://trekmate-np.vercel.app"];
 
 app.use((req, res, next) => {
     req.io = io;

@@ -115,7 +115,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     await user.save();
     await sendPasswordResetEmail(
         user.email,
-        `${process.env.CLIENT_URL}/reset-password/${resetToken}`
+        `${process.env.NODE_ENV == "production" ? process.env.LIVE_CLIENT_URL : process.env.CLIENT_URL}/reset-password/${resetToken}`
     );
     res.status(200).json({ msg: "Verification code sent to your email" });
 });
