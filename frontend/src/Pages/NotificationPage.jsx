@@ -6,7 +6,7 @@ import {
 } from "../features/notification/notificationSlice";
 import { useState } from "react";
 
-const tabs = ["All", "Verified", "Mentions"];
+const tabs = ["All"];
 
 const NotificationPage = () => {
   const dispatch = useDispatch();
@@ -44,11 +44,12 @@ const NotificationPage = () => {
             {tab}
           </button>
         ))}
-        <div className="ml-auto flex items-center">
+        {/* settings for later */}
+        {/* <div className="ml-auto flex items-center">
           <button className="text-neutral-400 hover:text-white text-lg sm:text-xl">
             <span className="material-icons">settings</span>
           </button>
-        </div>
+        </div> */}
       </div>
       <div className="flex-1 mt-2 px-1 sm:px-6 overflow-y-auto min-h-0">
         {error && <div className="text-red-500 mb-2">{error}</div>}
@@ -58,7 +59,7 @@ const NotificationPage = () => {
           </div>
         ) : (
           notifications.map((n) => {
-            const avatarUrl = n.sender?.avatar?.url || "/trekker-avatar.png";
+            const avatarUrl = n.sender?.avatar?.url || "/mountain (1).png";
             const postMedia =
               Array.isArray(n.post?.media_urls) && n.post.media_urls.length > 0
                 ? n.post.media_urls[0]
@@ -77,12 +78,14 @@ const NotificationPage = () => {
                 <img
                   src={avatarUrl}
                   alt={n.sender?.username || "avatar"}
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border border-neutral-700 flex-shrink-0"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border border-neutral-700 flex-shrink-0 bg-white"
                 />
                 <div className="flex-1 w-full flex flex-col justify-center">
-                  <span className="font-semibold text-white mr-1 sm:mr-2 cursor-pointer hover:underline text-xs sm:text-base">
-                    {n.sender?.username || "User"}
-                  </span>
+                  <a href={`/profile/${n.sender?.username}`}>
+                    <span className="font-semibold text-white mr-1 sm:mr-2 cursor-pointer hover:underline text-xs sm:text-base">
+                      {n.sender?.username || "User"}
+                    </span>
+                  </a>
                   <span className="text-neutral-300 text-xs sm:text-base">
                     {n.message}
                   </span>

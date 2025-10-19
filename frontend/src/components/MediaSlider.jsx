@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setSpeaker } from "../features/dashboard/dashboardSlice";
 
 const MediaSlider = ({ medias, currentIdx, onPrev, onNext, setIdx }) => {
   const [startX, setStartX] = useState(null);
@@ -12,9 +14,12 @@ const MediaSlider = ({ medias, currentIdx, onPrev, onNext, setIdx }) => {
   const [lastTap, setLastTap] = useState(0);
   const videoRef = useRef(null);
 
-  // Video play/pause and mute state
+  // Get global mute state from Redux
+  const isSpeakerOn = useSelector((state) => state.dashboard.isSpeakerOn);
+  const dispatch = useDispatch();
+
+  // Video play/pause state
   const [videoPlaying, setVideoPlaying] = useState(false);
-  const [videoMuted, setVideoMuted] = useState(true);
 
   // Video progress state
   const [videoTime, setVideoTime] = useState(0);
@@ -141,20 +146,20 @@ const MediaSlider = ({ medias, currentIdx, onPrev, onNext, setIdx }) => {
     }
   };
 
-  // Toggle mute
+  // Toggle global mute state (Instagram-like)
   const handleMuteToggle = (e) => {
     e.stopPropagation();
-    const video = videoRef.current;
-    if (!video) return;
-    video.muted = !video.muted;
-    setVideoMuted(video.muted);
+    // Toggle global speaker state
+    dispatch(setSpeaker(!isSpeakerOn));
   };
 
-  // Keep mute state in sync
+  // Sync video mute state with global state whenever it changes or video changes
   useEffect(() => {
     const video = videoRef.current;
-    if (video) video.muted = videoMuted;
-  }, [videoMuted, currentIdx]);
+    if (video) {
+      video.muted = !isSpeakerOn; // If speaker is ON, video should NOT be muted
+    }
+  }, [isSpeakerOn, currentIdx]);
 
   // Pause video when out of viewport or on slide change
   useEffect(() => {
@@ -246,7 +251,7 @@ const MediaSlider = ({ medias, currentIdx, onPrev, onNext, setIdx }) => {
                       onDragStart={(e) => e.preventDefault()}
                       onClick={handleVideoClick}
                       playsInline
-                      muted={videoMuted}
+                      muted={!isSpeakerOn} // Use global state directly
                     />
                     {/* Play/Pause overlay icon */}
                     <button
@@ -292,15 +297,15 @@ const MediaSlider = ({ medias, currentIdx, onPrev, onNext, setIdx }) => {
                         </svg>
                       )}
                     </button>
-                    {/* Speaker/mute icon */}
+                    {/* Speaker/mute icon - shows global state */}
                     <button
                       type="button"
                       onClick={handleMuteToggle}
                       className="absolute bottom-12 right-4 bg-black/60 rounded-full p-2 text-white focus:outline-none"
                       tabIndex={-1}
-                      aria-label={videoMuted ? "Unmute" : "Mute"}
+                      aria-label={isSpeakerOn ? "Mute" : "Unmute"}
                     >
-                      {videoMuted ? (
+                      {!isSpeakerOn ? ( // If speaker is OFF, show muted icon
                         <svg
                           width="24"
                           height="24"
@@ -329,6 +334,7 @@ const MediaSlider = ({ medias, currentIdx, onPrev, onNext, setIdx }) => {
                           />
                         </svg>
                       ) : (
+                        // If speaker is ON, show unmuted icon
                         <svg
                           width="24"
                           height="24"

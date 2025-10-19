@@ -18,7 +18,10 @@ import {
 } from "../components/ui/SideBar.jsx";
 
 import { useSelector, useDispatch } from "react-redux";
-import { setActivePage } from "../features/dashboard/dashboardSlice";
+import {
+  setActivePage,
+  setAnimate,
+} from "../features/dashboard/dashboardSlice";
 import { Outlet } from "react-router-dom"; // ✅ add this
 
 export default function DashBoard() {
@@ -27,6 +30,7 @@ export default function DashBoard() {
   const unreadCount = notifications?.filter((n) => !n.read).length || 0;
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
+  const animate = useSelector((state) => state.dashboard.animate);
 
   const links = [
     {
@@ -36,6 +40,16 @@ export default function DashBoard() {
         <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
       onClick: () => dispatch(setActivePage("dashboard")),
+    },
+    {
+      label: "Messages",
+      href: "/messages",
+      icon: (
+        <MessageCircle className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+      ),
+      onClick: () => (
+        dispatch(setActivePage("messages")), dispatch(setAnimate(true))
+      ),
     },
     {
       label: "Notifications",
@@ -91,7 +105,7 @@ export default function DashBoard() {
       }}
     >
       {/* Left Sidebar */}
-      <Sidebar open={open} setOpen={setOpen} animate={false}>
+      <Sidebar open={open} setOpen={setOpen} animate={animate}>
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
             <Logo />
@@ -105,8 +119,9 @@ export default function DashBoard() {
             <SidebarLink
               link={{
                 label: `${user?.name}`,
-                href: "#",
+                href: `/profile/${user?.username}`,
                 icon: <User className="text-white" />,
+                onClick: () => dispatch(setActivePage("profile")),
               }}
             />
           </div>

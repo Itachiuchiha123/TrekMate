@@ -230,9 +230,9 @@ const ProfilePage = () => {
           {/* Avatar */}
           <div className="absolute -bottom-16 left-8 flex items-center">
             <img
-              src={user?.avatar?.url || "/trekker-avatar.png"}
+              src={user?.avatar?.url || "/mountain.png"}
               alt="Profile"
-              className="w-32 h-32 rounded-full border-4 border-white dark:border-neutral-900 shadow-lg object-cover bg-green-200"
+              className="w-32 h-32 rounded-full border-4 bg-white border-white dark:border-neutral-900 shadow-lg object-cover"
             />
           </div>
         </div>
@@ -289,7 +289,14 @@ const ProfilePage = () => {
             <span>Joined {new Date(user?.createdAt).toLocaleDateString()}</span>
             <span>•</span>
             <a
-              href={user?.website}
+              href={
+                user?.website
+                  ? user.website.startsWith("http://") ||
+                    user.website.startsWith("https://")
+                    ? user.website
+                    : `https://${user.website}`
+                  : "#"
+              }
               className="text-blue-600 dark:text-blue-400 hover:underline"
               target="_blank"
               rel="noopener noreferrer"

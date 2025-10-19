@@ -1,5 +1,5 @@
 import { cn } from "../../libs/utils";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import React, { useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { IconMenu2, IconX } from "@tabler/icons-react";
@@ -112,7 +112,7 @@ export const MobileSidebar = ({ className, children, ...props }) => {
               >
                 <IconX />
               </div>
-              {children}
+              <span onClick={() => setOpen(false)}>{children}</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -124,12 +124,19 @@ export const MobileSidebar = ({ className, children, ...props }) => {
 export const SidebarLink = ({ link, className, ...props }) => {
   const { open, animate } = useSidebar();
   const dispatch = useDispatch();
+  const location = useLocation();
   // const { logout } = useAuthStore();
+
+  const isActive = location.pathname === link.href;
+
   return (
     <Link
       to={link.href}
       className={cn(
-        "flex items-center justify-start gap-2  group/sidebar py-2",
+        "flex items-center justify-start gap-2 group/sidebar py-2 px-2 rounded-lg transition-colors duration-150",
+        isActive
+          ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
+          : "hover:bg-neutral-200 dark:hover:bg-neutral-700",
         className
       )}
       {...props}
@@ -144,13 +151,20 @@ export const SidebarLink = ({ link, className, ...props }) => {
         }
       }}
     >
-      {link.icon}
+      <span className={isActive ? "text-blue-600 dark:text-blue-400" : ""}>
+        {link.icon}
+      </span>
       <motion.span
         animate={{
           display: animate ? (open ? "inline-block" : "none") : "inline-block",
           opacity: animate ? (open ? 1 : 0) : 1,
         }}
-        className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
+        className={cn(
+          "text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0",
+          isActive
+            ? "text-blue-600 dark:text-blue-400 font-semibold"
+            : "text-neutral-700 dark:text-neutral-200"
+        )}
       >
         {link.label}
       </motion.span>
