@@ -104,6 +104,7 @@ export const getPublicProfile = async (req, res) => {
                 createdAt: user.createdAt,
                 followers: user.followers,
                 following: user.following,
+                coverPhoto: user.coverPhoto,
             },
             posts,
             can_view_posts: !user.is_private || isOwner,
@@ -134,12 +135,12 @@ export const followUser = async (req, res) => {
             return res.status(404).json({ msg: "Current user not found" });
         }
 
-        if (currentUser.following.includes(targetUserId)) {
-            // Unfollow
+        const isFollowing = currentUser.following.includes(targetUserId);
+
+        if (isFollowing) {
             currentUser.following.pull(targetUserId);
             targetUser.followers.pull(currentUserId);
         } else {
-            // Follow
             currentUser.following.push(targetUserId);
             targetUser.followers.push(currentUserId);
         }
@@ -149,7 +150,7 @@ export const followUser = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: currentUser.following.includes(targetUserId) ? "Followed successfully" : "Unfollowed successfully",
+            message: isFollowing ? "Unfollowed successfully" : "Followed successfully",
             followingCount: currentUser.following.length,
             followersCount: targetUser.followers.length,
         });
@@ -158,3 +159,31 @@ export const followUser = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 }
+
+export const updateCoverPhoto = async (req, res) => {
+    try {
+        const { url, public_id } = req.body;
+        if (!url || !public_id) {
+            return res.status(400).json({ msg: "Missing cover photo data" });
+        }
+
+        const user = await User.findById(req.userId);
+        if (!user) return res.status(404).json({ msg: "User not found" });
+
+        if (user.coverPhoto?.public_id) {
+            try {
+                await cloudinary.uploader.destroy(user.coverPhoto.public_id);
+            } catch (err) {
+                console.error("Failed to delete old cover photo from Cloudinary:", err);
+            }
+        }
+
+        user.coverPhoto = { url, public_id };
+        await user.save();
+
+        res.status(200).json({ coverPhoto: user.coverPhoto });
+    } catch (err) {
+        console.error("Cover photo update failed:", err);
+        res.status(500).json({ msg: "Cover photo update failed" });
+    }
+};

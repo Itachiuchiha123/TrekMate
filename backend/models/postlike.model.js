@@ -7,4 +7,5 @@ const PostLikeSchema = new mongoose.Schema({
 
 PostLikeSchema.index({ user: 1, post: 1 }, { unique: true });
 
-export const PostLike = mongoose.model("PostLike", PostLikeSchema);
+const PostLike = mongoose.model("PostLike", PostLikeSchema);
+export default PostLike;

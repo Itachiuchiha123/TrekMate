@@ -35,6 +35,16 @@ const userSchema = new mongoose.Schema(
                 default: "", // or a default avatar URL if you prefer
             },
         },
+        coverPhoto: {
+            public_id: {
+                type: String,
+                default: "", // nothing uploaded yet
+            },
+            url: {
+                type: String,
+                default: "", // or a default cover photo URL if you prefer
+            },
+        },
         bio: {
             type: String,
             maxlength: 160,

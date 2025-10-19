@@ -7,4 +7,5 @@ const CommentLikeSchema = new mongoose.Schema({
 
 CommentLikeSchema.index({ user: 1, comment: 1 }, { unique: true });
 
-export const CommentLike = mongoose.model("CommentLike", CommentLikeSchema);
+const CommentLike = mongoose.model("CommentLike", CommentLikeSchema);
+export default CommentLike;

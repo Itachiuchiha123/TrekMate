@@ -7,9 +7,10 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import http from "http";
 import socket from "./sockets/socket.js";
-import upload from "./middleware/upload.js";
 import uploadrouter from "./routes/uploadRoute.js";
 import userRouter from "./routes/user.route.js";
+import postrouter from "./routes/post.route.js";
+import postmediarouter from "./routes/postRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -43,6 +44,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api", uploadrouter);
 app.use("/api/user", userRouter);
+app.use("/api/posts", postrouter)
+app.use("/api/postmedia", postmediarouter)
 
 
 // 404 error handler
