@@ -116,7 +116,11 @@ function App() {
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/landingpage" replace />} />
         </Routes>
-        <Toaster />
+        <Toaster
+          containerStyle={{
+            fontFamily: "'Montserrat', 'Inter', 'Segoe UI', Arial, sans-serif",
+          }}
+        />
       </Suspense>
     </BrowserRouter>
   );
