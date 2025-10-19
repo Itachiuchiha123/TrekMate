@@ -156,25 +156,65 @@ const DashboardContent = () => {
             </div>
             {selectedImages.length > 0 && (
               <div className="flex gap-2 mt-2 px-4 flex-wrap">
-                {selectedImages.map((img, idx) => (
-                  <div key={idx} className="relative group">
-                    <img
-                      src={img.url}
-                      alt="Preview"
-                      className="max-w-xs rounded-md object-cover h-32 w-32"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveImage(idx)}
-                      className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-1 opacity-80 group-hover:opacity-100 transition"
-                      title="Remove"
-                    >
-                      <span style={{ fontWeight: "bold", fontSize: "1.1rem" }}>
-                        ×
-                      </span>
-                    </button>
-                  </div>
-                ))}
+                {selectedImages.map((img, idx) => {
+                  const isVideo =
+                    img.file &&
+                    img.file.type &&
+                    img.file.type.startsWith("video");
+                  return (
+                    <div key={idx} className="relative group">
+                      {isVideo ? (
+                        <div className="w-32 h-32 rounded-md bg-black flex items-center justify-center overflow-hidden">
+                          <video
+                            src={img.url}
+                            className="w-full h-full object-cover"
+                            preload="metadata"
+                            muted
+                            playsInline
+                            tabIndex={-1}
+                            style={{ pointerEvents: "none" }}
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <svg
+                              width="40"
+                              height="40"
+                              viewBox="0 0 64 64"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="drop-shadow-lg"
+                            >
+                              <circle
+                                cx="32"
+                                cy="32"
+                                r="32"
+                                fill="rgba(0,0,0,0.5)"
+                              />
+                              <polygon points="26,20 48,32 26,44" fill="#fff" />
+                            </svg>
+                          </div>
+                        </div>
+                      ) : (
+                        <img
+                          src={img.url}
+                          alt="Preview"
+                          className="max-w-xs rounded-md object-cover h-32 w-32"
+                        />
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(idx)}
+                        className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-1 opacity-80 group-hover:opacity-100 transition"
+                        title="Remove"
+                      >
+                        <span
+                          style={{ fontWeight: "bold", fontSize: "1.1rem" }}
+                        >
+                          ×
+                        </span>
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
             <div className="flex items-center justify-between px-4 pt-2">

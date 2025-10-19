@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { timeAgo } from "../libs/utils";
 import MediaSlider from "./MediaSlider";
 import {
@@ -16,6 +17,7 @@ const PostCommentsModal = ({ post, onClose }) => {
   const [replyTo, setReplyTo] = useState(null);
   const [expandedReplies, setExpandedReplies] = useState({});
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { comments, loading, createLoading, likeLoading } = useSelector(
     (state) => state.comments
   );
@@ -73,6 +75,30 @@ const PostCommentsModal = ({ post, onClose }) => {
     return flat;
   };
 
+  // Helper to render text with @username links
+  const renderWithMentions = (text) => {
+    if (!text) return null;
+    const parts = text.split(/(@[a-zA-Z0-9_]+)/g);
+    return parts.map((part, idx) => {
+      if (/^@[a-zA-Z0-9_]+$/.test(part)) {
+        const username = part.slice(1);
+        return (
+          <a
+            key={idx}
+            href={`/profile/${username}`}
+            className="text-blue-500 hover:underline"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            {part}
+          </a>
+        );
+      }
+      return part;
+    });
+  };
+
   const renderComments = (commentsList) => {
     if (!commentsList || !commentsList.length) return null;
     return commentsList.map((comment) => {
@@ -88,7 +114,14 @@ const PostCommentsModal = ({ post, onClose }) => {
             />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap min-w-0">
-                <span className="font-semibold text-neutral-800 dark:text-neutral-100 text-sm truncate">
+                <span
+                  className="font-semibold text-neutral-800 dark:text-neutral-100 text-sm truncate cursor-pointer hover:underline"
+                  onClick={() => {
+                    if (comment.user?.username) {
+                      navigate(`/profile/${comment.user.username}`);
+                    }
+                  }}
+                >
                   {comment.user?.name}
                 </span>
                 <span className="text-xs text-neutral-400">
@@ -108,7 +141,7 @@ const PostCommentsModal = ({ post, onClose }) => {
                 )}
               </div>
               <div className="text-sm text-black dark:text-white mb-1 break-words">
-                {comment.content}
+                {renderWithMentions(comment.content)}
               </div>
               <div className="flex items-center gap-3 text-xs mt-1">
                 <button
@@ -163,7 +196,14 @@ const PostCommentsModal = ({ post, onClose }) => {
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-semibold text-neutral-800 dark:text-neutral-100 text-xs truncate">
+                          <span
+                            className="font-semibold text-neutral-800 dark:text-neutral-100 text-xs truncate cursor-pointer hover:underline"
+                            onClick={() => {
+                              if (reply.user?.username) {
+                                navigate(`/profile/${reply.user.username}`);
+                              }
+                            }}
+                          >
                             {reply.user?.name}
                           </span>
                           <span className="text-xs text-neutral-400">
@@ -184,7 +224,7 @@ const PostCommentsModal = ({ post, onClose }) => {
                             )}
                         </div>
                         <div className="text-xs text-black dark:text-white mb-1 break-words">
-                          {reply.content}
+                          {renderWithMentions(reply.content)}
                         </div>
                         <div className="flex items-center gap-3 text-xs mt-1">
                           <button
@@ -227,7 +267,7 @@ const PostCommentsModal = ({ post, onClose }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-2 sm:p-4">
       <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-lg w-full h-full sm:h-auto max-w-2xl flex flex-col sm:flex-row overflow-hidden relative">
         <div className="w-full sm:w-1/2 flex items-center justify-center bg-black min-h-[220px] sm:min-h-[400px] h-[250px] sm:h-auto">
-          {medias.length > 0 ? (
+          {medias.length > 0 && (
             <MediaSlider
               medias={medias}
               currentIdx={mediaIdx}
@@ -239,10 +279,6 @@ const PostCommentsModal = ({ post, onClose }) => {
               }
               setIdx={setMediaIdx}
             />
-          ) : (
-            <div className="flex items-center justify-center w-full h-full text-neutral-400 text-4xl bg-neutral-100 dark:bg-neutral-900">
-              <span>📷</span>
-            </div>
           )}
         </div>
 

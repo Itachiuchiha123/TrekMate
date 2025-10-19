@@ -10,6 +10,7 @@ import { useParams } from "react-router-dom";
 import { MoreHorizontal } from "lucide-react";
 import toast from "react-hot-toast";
 import UpdatePostModal from "../components/UpdatePostModal";
+import PostCommentsModal from "../components/PostCommentsModal";
 
 const ProfilePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,6 +18,7 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true); // ✅ Loading state
   const [profileData, setProfileData] = useState(null);
   const [editPost, setEditPost] = useState(null);
+  const [selectedPost, setSelectedPost] = useState(null);
 
   const { username } = useParams();
   const dispatch = useDispatch();
@@ -108,26 +110,41 @@ const ProfilePage = () => {
     };
 
     return (
-      <div className="relative inline-block text-left">
+      <div
+        className="relative inline-block text-left"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           type="button"
           className="p-1 rounded-full bg-black/60 hover:bg-black/80 text-white"
-          onClick={() => setOpen((v) => !v)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpen((v) => !v);
+          }}
         >
           <MoreHorizontal size={20} />
         </button>
         {open && (
-          <div className="absolute right-0 mt-2 w-36 rounded-md shadow-lg bg-white dark:bg-neutral-800 ring-1 ring-black ring-opacity-5 z-30">
+          <div
+            className="absolute right-0 mt-2 w-36 rounded-md shadow-lg bg-white dark:bg-neutral-800 ring-1 ring-black ring-opacity-5 z-30"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="py-1">
               <button
                 className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-neutral-100 dark:hover:bg-neutral-700"
-                onClick={handleDelete}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete();
+                }}
               >
                 Delete Post
               </button>
               <button
                 className="w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-neutral-100 dark:hover:bg-neutral-700"
-                onClick={handleUpdate}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleUpdate();
+                }}
               >
                 Update Post
               </button>
@@ -316,7 +333,7 @@ const ProfilePage = () => {
               Saved
             </button> */}
           </div>
-          {/*  User's Posts Section (only for owner) */}
+          {/* Posts Section */}
           {showPosts && (
             <div className="mt-8">
               <h3 className="text-xl font-bold mb-4 text-neutral-800 dark:text-neutral-100">
@@ -330,6 +347,10 @@ const ProfilePage = () => {
                     <div
                       key={post._id}
                       className="relative aspect-square bg-neutral-200 dark:bg-neutral-800 overflow-hidden group cursor-pointer"
+                      onClick={() => {
+                        console.log("Selected post:", post);
+                        setSelectedPost(post);
+                      }}
                     >
                       {/* Triple dot menu only for owner */}
                       {isOwner && (
@@ -343,10 +364,10 @@ const ProfilePage = () => {
                             src={post.media_urls[0]}
                             className="w-full h-full object-cover"
                             muted
-                            loop
                             playsInline
                             preload="metadata"
-                            poster="/trekker-avatar.png"
+                            style={{ pointerEvents: "none" }}
+                            poster={undefined} // poster will be the first frame by default
                           />
                         ) : (
                           <img
@@ -413,6 +434,13 @@ const ProfilePage = () => {
         }}
         user={user}
       />
+      {/* PostCommentsModal for selected post */}
+      {selectedPost && (
+        <PostCommentsModal
+          post={{ ...selectedPost, user }}
+          onClose={() => setSelectedPost(null)}
+        />
+      )}
     </div>
   );
 };

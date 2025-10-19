@@ -6,6 +6,7 @@ import profileReducer from './features/public/profileSlice';
 import followReducer from './features/follow/followSlice';
 import postsReducer from './features/posts/postSlice';
 import commentReducer from './features/comments/commentSlice';
+import notificationReducer from './features/notification/notificationSlice';
 
 export const store = configureStore({
     reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
         follow: followReducer,
         posts: postsReducer,
         comments: commentReducer,
+        notifications: notificationReducer,
     },
 });
 export default store;

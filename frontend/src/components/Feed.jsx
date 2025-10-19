@@ -53,7 +53,12 @@ const Feed = ({ posts, postsLoading }) => {
   };
 
   return (
-    <div className="w-full flex flex-col gap-6">
+    <div
+      className="w-full flex flex-col gap-6"
+      style={{
+        fontFamily: "'Montserrat', 'Inter', 'Segoe UI', Arial, sans-serif",
+      }}
+    >
       {postsLoading || posts.length === 0 ? (
         <>
           <div className="h-24 w-full max-w-3xl rounded-xl bg-gray-100 dark:bg-neutral-800 animate-pulse mx-auto"></div>

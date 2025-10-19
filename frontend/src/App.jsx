@@ -24,6 +24,8 @@ import DashboardContent from "./Pages/DashBoardContent.jsx";
 import ProfilePage from "./Pages/ProfilePage.jsx";
 import DashboardLayout from "./layouts/DashboardLayout.jsx";
 import DashBoard from "./Pages/Dashboard.jsx";
+import useSocket from "./hooks/useSocket";
+import NotificationPage from "./Pages/NotificationPage.jsx";
 
 function App() {
   const {
@@ -31,6 +33,7 @@ function App() {
     isAuthenticated,
     user,
   } = useSelector((state) => state.auth);
+  useSocket();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -63,6 +66,7 @@ function App() {
             <Route path="/" element={<DashBoard />}>
               <Route index element={<DashboardContent />} />
               <Route path="profile/:username" element={<ProfilePage />} />
+              <Route path="notifications" element={<NotificationPage />} />
             </Route>
           </Route>
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 const MediaSlider = ({ medias, currentIdx, onPrev, onNext, setIdx }) => {
   const [startX, setStartX] = useState(null);
@@ -10,8 +10,18 @@ const MediaSlider = ({ medias, currentIdx, onPrev, onNext, setIdx }) => {
   const [lastPan, setLastPan] = useState({ x: 0, y: 0 });
   const [panStart, setPanStart] = useState(null);
   const [lastTap, setLastTap] = useState(0);
+  const videoRef = useRef(null);
 
-  // Double click/tap to zoom
+  // Video play/pause and mute state
+  const [videoPlaying, setVideoPlaying] = useState(false);
+  const [videoMuted, setVideoMuted] = useState(true);
+
+  // Video progress state
+  const [videoTime, setVideoTime] = useState(0);
+  const [videoDuration, setVideoDuration] = useState(0);
+  const [seeking, setSeeking] = useState(false);
+
+  // Double click to zoom (desktop only)
   const handleDoubleClick = (e) => {
     e.preventDefault();
     if (!zoomed) {
@@ -25,27 +35,9 @@ const MediaSlider = ({ medias, currentIdx, onPrev, onNext, setIdx }) => {
       setLastPan({ x: 0, y: 0 });
     }
   };
-  // Double tap for mobile (timer-based)
-  const doubleTapTimeout = React.useRef(null);
-  const [tapCount, setTapCount] = useState(0);
 
+  // Touch events: no double-tap zoom on mobile
   const handleTouchStart = (e) => {
-    if (e.touches.length === 1) {
-      setTapCount((prev) => prev + 1);
-      if (doubleTapTimeout.current) clearTimeout(doubleTapTimeout.current);
-      doubleTapTimeout.current = setTimeout(() => {
-        setTapCount(0);
-      }, 350);
-      if (tapCount === 1) {
-        setZoomed((z) => !z);
-        setPan({ x: 0, y: 0 });
-        setLastPan({ x: 0, y: 0 });
-        setTapCount(0);
-        if (doubleTapTimeout.current) clearTimeout(doubleTapTimeout.current);
-        e.preventDefault();
-        return;
-      }
-    }
     if (!zoomed) setStartX(e.touches[0].clientX);
     setMoved(false);
     if (zoomed) {
@@ -136,6 +128,88 @@ const MediaSlider = ({ medias, currentIdx, onPrev, onNext, setIdx }) => {
     };
   };
 
+  // Play/pause on click/tap
+  const handleVideoClick = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.paused) {
+      video.play();
+      setVideoPlaying(true);
+    } else {
+      video.pause();
+      setVideoPlaying(false);
+    }
+  };
+
+  // Toggle mute
+  const handleMuteToggle = (e) => {
+    e.stopPropagation();
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = !video.muted;
+    setVideoMuted(video.muted);
+  };
+
+  // Keep mute state in sync
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) video.muted = videoMuted;
+  }, [videoMuted, currentIdx]);
+
+  // Pause video when out of viewport or on slide change
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const observer = new window.IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) {
+          video.pause();
+          setVideoPlaying(false);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, [currentIdx]);
+
+  // Update time/duration
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const handleTimeUpdate = () => setVideoTime(video.currentTime);
+    const handleLoadedMetadata = () => setVideoDuration(video.duration);
+    video.addEventListener("timeupdate", handleTimeUpdate);
+    video.addEventListener("loadedmetadata", handleLoadedMetadata);
+    return () => {
+      video.removeEventListener("timeupdate", handleTimeUpdate);
+      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+    };
+  }, [currentIdx]);
+
+  // Seek handler
+  const handleSeek = (e) => {
+    const video = videoRef.current;
+    if (!video || !videoDuration) return;
+    const rect = e.target.getBoundingClientRect();
+    const percent = Math.min(
+      Math.max((e.clientX - rect.left) / rect.width, 0),
+      1
+    );
+    video.currentTime = percent * videoDuration;
+    setVideoTime(video.currentTime);
+  };
+
+  // Format time helper
+  const formatTime = (t) => {
+    if (!t || isNaN(t)) return "0:00";
+    const m = Math.floor(t / 60);
+    const s = Math.floor(t % 60)
+      .toString()
+      .padStart(2, "0");
+    return `${m}:${s}`;
+  };
+
   return (
     <div className="w-full flex flex-col items-center bg-black/90 px-0 py-2 relative select-none">
       <div
@@ -162,14 +236,158 @@ const MediaSlider = ({ medias, currentIdx, onPrev, onNext, setIdx }) => {
                 }}
               >
                 {url.match(/\.(mp4|webm|ogg)$/i) ? (
-                  <video
-                    src={url}
-                    controls
-                    className="w-full max-h-[600px] object-contain bg-black"
-                    style={getZoomStyle()}
-                    draggable={false}
-                    onDragStart={(e) => e.preventDefault()}
-                  />
+                  <div className="relative w-full h-full flex flex-col items-center justify-center">
+                    <video
+                      ref={videoRef}
+                      src={url}
+                      className="w-full max-h-[600px] object-contain bg-black"
+                      style={getZoomStyle()}
+                      draggable={false}
+                      onDragStart={(e) => e.preventDefault()}
+                      onClick={handleVideoClick}
+                      playsInline
+                      muted={videoMuted}
+                    />
+                    {/* Play/Pause overlay icon */}
+                    <button
+                      type="button"
+                      onClick={handleVideoClick}
+                      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 rounded-full p-2 text-white focus:outline-none"
+                      style={{ display: videoPlaying ? "none" : "flex" }}
+                      tabIndex={-1}
+                      aria-label={videoPlaying ? "Pause" : "Play"}
+                    >
+                      {videoPlaying ? (
+                        <svg
+                          width="40"
+                          height="40"
+                          viewBox="0 0 40 40"
+                          fill="none"
+                        >
+                          <rect
+                            x="12"
+                            y="10"
+                            width="5"
+                            height="20"
+                            rx="2"
+                            fill="white"
+                          />
+                          <rect
+                            x="23"
+                            y="10"
+                            width="5"
+                            height="20"
+                            rx="2"
+                            fill="white"
+                          />
+                        </svg>
+                      ) : (
+                        <svg
+                          width="40"
+                          height="40"
+                          viewBox="0 0 40 40"
+                          fill="none"
+                        >
+                          <polygon points="14,10 32,20 14,30" fill="white" />
+                        </svg>
+                      )}
+                    </button>
+                    {/* Speaker/mute icon */}
+                    <button
+                      type="button"
+                      onClick={handleMuteToggle}
+                      className="absolute bottom-12 right-4 bg-black/60 rounded-full p-2 text-white focus:outline-none"
+                      tabIndex={-1}
+                      aria-label={videoMuted ? "Unmute" : "Mute"}
+                    >
+                      {videoMuted ? (
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <path
+                            d="M9 9L5 13H2v-2h3l4-4v8l-4-4H2v-2h3l4-4v8z"
+                            fill="white"
+                          />
+                          <line
+                            x1="16"
+                            y1="8"
+                            x2="22"
+                            y2="16"
+                            stroke="white"
+                            strokeWidth="2"
+                          />
+                          <line
+                            x1="22"
+                            y1="8"
+                            x2="16"
+                            y2="16"
+                            stroke="white"
+                            strokeWidth="2"
+                          />
+                        </svg>
+                      ) : (
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <path
+                            d="M9 9L5 13H2v-2h3l4-4v8l-4-4H2v-2h3l4-4v8z"
+                            fill="white"
+                          />
+                          <path
+                            d="M16 8c1.656 1.656 1.656 4.344 0 6"
+                            stroke="white"
+                            strokeWidth="2"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                    {/* Video progress bar */}
+                    <div className="absolute bottom-2 left-0 right-0 flex items-center px-4">
+                      <span
+                        className="text-xs text-white mr-2"
+                        style={{ minWidth: 36 }}
+                      >
+                        {formatTime(videoTime)}
+                      </span>
+                      <div
+                        className="flex-1 h-2 bg-white/30 rounded-full cursor-pointer relative"
+                        onClick={handleSeek}
+                        style={{ minWidth: 0 }}
+                      >
+                        <div
+                          className="h-2 bg-blue-500 rounded-full"
+                          style={{
+                            width: videoDuration
+                              ? `${(videoTime / videoDuration) * 100}%`
+                              : "0%",
+                          }}
+                        ></div>
+                        <div
+                          className="absolute top-1/2 -translate-y-1/2 left-0 h-4 w-4 rounded-full bg-blue-500 shadow"
+                          style={{
+                            left: videoDuration
+                              ? `calc(${
+                                  (videoTime / videoDuration) * 100
+                                }% - 8px)`
+                              : "-8px",
+                            pointerEvents: "none",
+                          }}
+                        ></div>
+                      </div>
+                      <span
+                        className="text-xs text-white ml-2"
+                        style={{ minWidth: 36 }}
+                      >
+                        {formatTime(videoDuration)}
+                      </span>
+                    </div>
+                  </div>
                 ) : (
                   <img
                     src={url}
