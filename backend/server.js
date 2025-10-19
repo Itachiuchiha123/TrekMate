@@ -7,13 +7,16 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import http from "http";
 import socket from "./sockets/socket.js";
+import upload from "./middleware/upload.js";
+import uploadrouter from "./routes/uploadRoute.js";
+import userRouter from "./routes/user.route.js";
 
 dotenv.config();
 const app = express();
 const server = http.createServer(app);
 const io = socket(server);
 
-const allowedOrigins = ["http://127.0.0.1:5173", "http://localhost:5173", "https://trekmate-np.vercel.app"];
+const allowedOrigins = ["http://127.0.0.1:5173", "http://localhost:5173", "https://trekmate-np.vercel.app", "http://localhost:3000"];
 
 app.use((req, res, next) => {
     req.io = io;
@@ -38,6 +41,9 @@ app.use(express.json());
 app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api", uploadrouter);
+app.use("/api/user", userRouter);
+
 
 // 404 error handler
 app.use((req, res, next) => {

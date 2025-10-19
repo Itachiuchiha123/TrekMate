@@ -3,83 +3,73 @@ import {
     PASSWORD_RESET_SUCCESS_TEMPLATE,
     VERIFICATION_EMAIL_TEMPLATE,
 } from "./emailTemplates.js";
-import { mailtrapClient, sender } from "./mailtrap.config.js";
+
+import { gmailTransporter, sender } from "./mail.config.js";
+
+const formatAddress = (name, email) => `"${name}" <${email}>`;
 
 export const sendVerificationEmail = async (email, verificationToken) => {
-    const recepient = [{ email }];
-
     try {
-        const response = await mailtrapClient.send({
-            from: sender,
-            to: recepient,
+        const info = await gmailTransporter.sendMail({
+            from: formatAddress(sender.name, sender.email),
+            to: email,
             subject: "Account Verification",
-            html: VERIFICATION_EMAIL_TEMPLATE.replace(
-                "{verificationCode}",
-                verificationToken
-            ),
-            category: "Account Verification",
+            html: VERIFICATION_EMAIL_TEMPLATE.replace("{verificationCode}", verificationToken),
         });
-        console.log("Email sent succesfully!", response);
+
+        console.log("Verification email sent:", info.messageId);
     } catch (error) {
-        console.error("Email not sent", error);
+        console.error("Error sending verification email:", error);
         throw new Error("Email not sent: " + error.message);
     }
 };
 
 export const sendWelcomeEmail = async (email, name) => {
-    const recepient = [{ email }];
+    const html = `<h2>Welcome, ${name}!</h2><p>Thanks for joining EasyTrip. We’re excited to have you on board.</p>`;
 
     try {
-        const response = await mailtrapClient.send({
-            from: sender,
-            to: recepient,
-            template_uuid: "82533546-9178-4eda-85d9-ac0edb622cfe",
-            template_variables: {
-                name: name,
-            },
+        const info = await gmailTransporter.sendMail({
+            from: formatAddress(sender.name, sender.email),
+            to: email,
+            subject: "Welcome to EasyTrip!",
+            html,
         });
-        console.log("Welcome Email sent succesfully!", response);
+
+        console.log("Welcome email sent:", info.messageId);
     } catch (error) {
-        console.error("Email not sent", error);
+        console.error("Error sending welcome email:", error);
         throw new Error("Email not sent: " + error.message);
     }
 };
 
 export const sendPasswordResetEmail = async (email, resetToken) => {
-    const recepient = [{ email }];
-
     try {
-        const response = await mailtrapClient.send({
-            from: sender,
-            to: recepient,
+        const info = await gmailTransporter.sendMail({
+            from: formatAddress(sender.name, sender.email),
+            to: email,
             subject: "Password Reset",
-            html: PASSWORD_RESET_REQUEST_TEMPLATE.replace(
-                "{resetURL}",
-                resetToken
-            ),
-            category: "Password Reset",
+            html: PASSWORD_RESET_REQUEST_TEMPLATE.replace("{resetURL}", resetToken),
         });
-        console.log("Password reset email sent succesfully!", response);
+
+        console.log("Password reset email sent:", info.messageId);
     } catch (error) {
-        console.error("Email not sent", error);
+        console.error("Error sending password reset email:", error);
         throw new Error("Email not sent: " + error.message);
     }
 };
 
 export const sendPasswordResetSuccessEmail = async (email) => {
-    const recepient = [{ email }];
-
     try {
-        const response = await mailtrapClient.send({
-            from: sender,
-            to: recepient,
+        const info = await gmailTransporter.sendMail({
+            from: formatAddress(sender.name, sender.email),
+            to: email,
             subject: "Password Reset Successful",
             html: PASSWORD_RESET_SUCCESS_TEMPLATE,
-            category: "Password Reset",
         });
-        console.log("Password reset success email sent succesfully!", response);
+
+        console.log("Password reset success email sent:", info.messageId);
     } catch (error) {
-        console.error("Email not sent", error);
+        console.error("Error sending password reset success email:", error);
         throw new Error("Email not sent: " + error.message);
     }
 };

@@ -10,6 +10,7 @@ import {
 import crypto from "crypto";
 import dotenv from "dotenv";
 import asyncHandler from "express-async-handler";
+import { generateUniqueUsername } from "../utils/generateUsername.js";
 
 dotenv.config();
 
@@ -23,7 +24,9 @@ export const signup = asyncHandler(async (req, res) => {
     if (userAlreadyExists) {
         return res.status(400).json({ msg: "User already exists" });
     }
-
+    // Generate a unique username
+    const baseName = name?.toLowerCase().replace(/\s+/g, "_") || "user";
+    const username = await generateUniqueUsername(baseName);
     const hashedPassword = await bcrypt.hash(password, 10);
     const verificationToken = Math.floor(
         100000 + Math.random() * 900000
@@ -32,6 +35,7 @@ export const signup = asyncHandler(async (req, res) => {
         name,
         email,
         password: hashedPassword,
+        username,
         verificationToken,
         verificationTokenExpires: Date.now() + 600000,
     });
