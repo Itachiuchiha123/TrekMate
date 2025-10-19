@@ -5,6 +5,7 @@ import dashboardReducer from './features/dashboard/dashboardSlice';
 import profileReducer from './features/public/profileSlice';
 import followReducer from './features/follow/followSlice';
 import postsReducer from './features/posts/postSlice';
+import commentReducer from './features/comments/commentSlice';
 
 export const store = configureStore({
     reducer: {
@@ -13,7 +14,8 @@ export const store = configureStore({
         dashboard: dashboardReducer,
         profile: profileReducer,
         follow: followReducer,
-        posts: postsReducer
+        posts: postsReducer,
+        comments: commentReducer,
     },
 });
 export default store;

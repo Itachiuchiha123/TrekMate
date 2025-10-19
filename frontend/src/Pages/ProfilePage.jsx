@@ -29,6 +29,12 @@ const ProfilePage = () => {
 
   const isOwner = currentuser?.username === username;
 
+  // New: get posts/can_view_posts for public profile
+  const publicProfile = fetchedProfile;
+  const publicUser = publicProfile?.profile;
+  const publicPosts = publicProfile?.posts;
+  const canViewPublicPosts = publicProfile?.can_view_posts;
+
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
@@ -49,10 +55,10 @@ const ProfilePage = () => {
       setProfileData(currentuser);
       console.log("Current user profile data:", currentuser);
     } else {
-      setProfileData(fetchedProfile?.profile);
-      console.log("Fetched profile data:", fetchedProfile?.profile);
+      setProfileData(publicUser);
+      console.log("Fetched profile data:", publicUser);
     }
-  }, [isOwner, currentuser, fetchedProfile]);
+  }, [isOwner, currentuser, publicUser]);
 
   const user = profileData;
 
@@ -174,6 +180,12 @@ const ProfilePage = () => {
     );
   }
 
+  // Posts to show
+  const postsToShow = isOwner ? userPosts : publicPosts;
+  const showPosts = isOwner || canViewPublicPosts;
+  const postsLoading = isOwner ? userPostsLoading : false;
+  const postsError = isOwner ? userPostsError : null;
+
   return (
     <div className="flex w-full h-screen overflow-y-auto bg-neutral-100 dark:bg-neutral-900 font-[Montserrat,sans-serif] pl-6">
       <div className="flex flex-col w-full">
@@ -272,7 +284,7 @@ const ProfilePage = () => {
           <div className="grid grid-cols-3 gap-4 text-center mb-8">
             <div>
               <p className="font-bold text-xl text-neutral-800 dark:text-neutral-100">
-                {user?.posts?.length || 0}
+                {postsToShow?.length || 0}
               </p>
               <p className="text-sm text-neutral-500">Posts</p>
             </div>
@@ -305,26 +317,26 @@ const ProfilePage = () => {
             </button> */}
           </div>
           {/*  User's Posts Section (only for owner) */}
-          {isOwner && (
+          {showPosts && (
             <div className="mt-8">
               <h3 className="text-xl font-bold mb-4 text-neutral-800 dark:text-neutral-100">
-                Your Posts
+                {isOwner ? "Your Posts" : `${user?.name}'s Posts`}
               </h3>
-              {userPostsLoading && <p>Loading posts...</p>}
-              {userPostsError && (
-                <p className="text-red-500">{userPostsError}</p>
-              )}
-              {userPosts && userPosts.length > 0 ? (
+              {postsLoading && <p>Loading posts...</p>}
+              {postsError && <p className="text-red-500">{postsError}</p>}
+              {postsToShow && postsToShow.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-[2px] bg-neutral-900 dark:bg-black">
-                  {userPosts.map((post) => (
+                  {postsToShow.map((post) => (
                     <div
                       key={post._id}
                       className="relative aspect-square bg-neutral-200 dark:bg-neutral-800 overflow-hidden group cursor-pointer"
                     >
-                      {/* Triple dot menu */}
-                      <div className="absolute top-2 right-2 z-20">
-                        <MenuButton post={post} />
-                      </div>
+                      {/* Triple dot menu only for owner */}
+                      {isOwner && (
+                        <div className="absolute top-2 right-2 z-20">
+                          <MenuButton post={post} />
+                        </div>
+                      )}
                       {post.media_urls && post.media_urls.length > 0 ? (
                         post.media_urls[0].match(/\.(mp4|webm|ogg)$/i) ? (
                           <video
@@ -379,57 +391,12 @@ const ProfilePage = () => {
                   ))}
                 </div>
               ) : (
-                !userPostsLoading && (
+                !postsLoading && (
                   <p className="text-neutral-500">No posts yet.</p>
                 )
               )}
             </div>
           )}
-          {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white dark:bg-neutral-800 rounded-xl shadow border border-neutral-200 dark:border-neutral-700 p-6">
-              <div className="flex items-center gap-2 mb-3">
-                <img
-                  src={user?.avatar?.url || "/trekker-avatar.png"}
-                  alt="Profile"
-                  className="w-8 h-8 rounded-full object-cover"
-                />
-                <span className="font-semibold text-neutral-800 dark:text-neutral-100">
-                  {user?.name}
-                </span>
-                <span className="text-xs text-neutral-400 ml-2">
-                  2 days ago
-                </span>
-              </div>
-              <div className="font-bold text-lg text-neutral-800 dark:text-neutral-100 mb-2">
-                Himalayan Base Camp Trek
-              </div>
-              <p className="text-neutral-700 dark:text-neutral-300 mb-3 text-sm">
-                Join us for an incredible 14-day journey to Everest Base Camp.
-                Experience breathtaking views, challenging trails, and
-                unforgettable memories.
-              </p>
-              <img
-                src="/trek1.jpg"
-                alt="Himalayan Trek"
-                className="w-full h-48 object-cover rounded-lg mb-3"
-              />
-              <div className="flex flex-wrap items-center gap-4 text-sm text-neutral-500 dark:text-neutral-400 mb-2">
-                <span>📅 Oct 15-29, 2024</span>
-                <span>•</span>
-                <span>12 participants</span>
-                <span>•</span>
-                <span>$2,499</span>
-              </div>
-              <div className="flex items-center gap-4 text-neutral-500 dark:text-neutral-400 text-sm">
-                <span>24 👍</span>
-                <span>8 💬</span>
-                <button className="hover:underline">Share</button>
-                <span className="ml-auto bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">
-                  Active
-                </span>
-              </div>
-            </div>
-          </div> */}
         </div>
       </div>
       <UpdatePostModal
